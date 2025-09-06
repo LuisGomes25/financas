@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -445,8 +447,6 @@
                       console.error("Authentication error:", tokenResponse);
                       return;
                     }
-                    // *** CORREÇÃO CRÍTICA AQUI ***
-                    // Passa o token para o GAPI client usar nas chamadas de API
                     gapi.client.setToken(tokenResponse);
                     updateSigninStatus(true);
                 },
@@ -459,10 +459,13 @@
              if (gapi.client.getToken() === null) {
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
-                google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
-                    gapi.client.setToken(null); // Limpa o token do GAPI client
-                    updateSigninStatus(false);
-                });
+                const token = gapi.client.getToken();
+                if (token) {
+                    google.accounts.oauth2.revoke(token.access_token, () => {
+                        gapi.client.setToken(null);
+                        updateSigninStatus(false);
+                    });
+                }
             }
         });
 
@@ -843,3 +846,4 @@
     </script>
 </body>
 </html>
+
