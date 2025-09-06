@@ -572,37 +572,43 @@
             saveDataButton.textContent = 'Salvando...';
             const allData = { expenses, monthlyIncomes, savings, lastUpdated: new Date().toISOString() };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-
             const metadata = { name: FILENAME, mimeType: 'application/json' };
             
             try {
-                let request;
                 const form = new FormData();
+                let method, path;
 
-                if (driveFileId) { 
+                if (driveFileId) {
+                    // UPDATE existing file
+                    path = `/upload/drive/v3/files/${driveFileId}?uploadType=multipart`;
+                    method = 'PATCH';
                     form.append('metadata', new Blob([JSON.stringify({})], { type: 'application/json' }));
-                    form.append('file', dataBlob);
-                    request = gapi.client.request({
-                        path: `/upload/drive/v3/files/${driveFileId}`,
-                        method: 'PATCH',
-                        params: { uploadType: 'multipart' },
-                        body: form
-                    });
-                } else { 
+                } else {
+                    // CREATE new file
+                    path = '/upload/drive/v3/files?uploadType=multipart';
+                    method = 'POST';
                     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-                    form.append('file', dataBlob);
-                    request = gapi.client.request({
-                        path: '/upload/drive/v3/files',
-                        method: 'POST',
-                        params: { uploadType: 'multipart' },
-                        body: form
-                    });
                 }
                 
-                const response = await request;
-                driveFileId = response.result.id; 
+                form.append('file', dataBlob);
+
+                const response = await fetch(`https://www.googleapis.com${path}`, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${gapi.client.getToken().access_token}`
+                    },
+                    body: form
+                });
+
+                if (!response.ok) {
+                    throw await response.json();
+                }
+
+                const result = await response.json();
+                driveFileId = result.id; 
                 saveDataButton.textContent = 'Salvo!';
                 saveDataButton.classList.replace('bg-green-600', 'bg-blue-500');
+
             } catch (err) {
                 console.error("Erro ao salvar no Drive", err);
                 saveDataButton.textContent = 'Erro ao Salvar';
@@ -616,6 +622,7 @@
                 }, 3000);
             }
         }
+
 
         function loadDefaultData() {
             expenses = [{ id: 1, date: '2025-09-01', type: 'Débito', description: 'Supermercado (Exemplo)', amount: 350.45, category: 'Alimentação', bank: 'Nubank' }];
