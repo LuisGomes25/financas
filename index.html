@@ -284,11 +284,11 @@
                         </div>
                     </div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700">Gastos Gerais por Categoria</h3>
+                        <h3 class="text-lg font-semibold text-gray-700">Gastos Totais por Mês</h3>
                         <canvas id="category-chart" class="mt-4"></canvas>
                     </div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Análise Mês a Mês</h3>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria</h3>
                         <select id="month-select" class="block w-full rounded-md shadow-sm sm:text-sm mb-4"></select>
                         <canvas id="monthly-category-chart" class="mt-4"></canvas>
                         <div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div>
@@ -407,7 +407,10 @@
         };
 
         // --- LÓGICA GOOGLE DRIVE & AUTH ---
-        window.gapiLoaded = () => gapi.load('client', initializeGapiClient);
+        window.gapiLoaded = () => {
+            gapi.load('client', initializeGapiClient);
+        };
+        
         window.gisLoaded = () => {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID, scope: SCOPES, callback: (tokenResponse) => {
@@ -420,7 +423,8 @@
                     updateSigninStatus(true);
                 },
             });
-            gisInited = true; maybeEnableButtons();
+            gisInited = true; 
+            maybeEnableButtons();
         };
 
         async function initializeGapiClient() { 
@@ -865,7 +869,6 @@
                 savings.push({ id: Date.now(), month: document.getElementById('saving-month').value, type: document.getElementById('saving-type').value, amount: parseFloat(document.getElementById('saving-amount').value) });
                 updateAllUI();
                 savingForm.reset();
-                document.getElementById('saving-month').value = `${year}-${month}`;
             });
 
             saveDataButton.addEventListener('click', saveDataToDrive);
