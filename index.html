@@ -441,7 +441,13 @@
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID, scope: SCOPES, callback: (tokenResponse) => {
-                    if (tokenResponse.error) { console.error(tokenResponse); return; }
+                    if (tokenResponse.error) {
+                      console.error("Authentication error:", tokenResponse);
+                      return;
+                    }
+                    // *** CORREÇÃO CRÍTICA AQUI ***
+                    // Passa o token para o GAPI client usar nas chamadas de API
+                    gapi.client.setToken(tokenResponse);
                     updateSigninStatus(true);
                 },
             });
@@ -454,7 +460,7 @@
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
                 google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
-                    gapi.client.setToken('');
+                    gapi.client.setToken(null); // Limpa o token do GAPI client
                     updateSigninStatus(false);
                 });
             }
@@ -837,9 +843,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
