@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -8,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Google API & Identity Services -->
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="window.gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="window.gisLoaded()"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -438,9 +437,8 @@
         };
 
         // --- LÓGICA GOOGLE DRIVE & AUTH ---
-        function gapiLoaded() { gapi.load('client', initializeGapiClient); }
-        async function initializeGapiClient() { await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); gapiInited = true; maybeEnableButtons(); }
-        function gisLoaded() {
+        window.gapiLoaded = () => gapi.load('client', initializeGapiClient);
+        window.gisLoaded = () => {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID, scope: SCOPES, callback: (tokenResponse) => {
                     if (tokenResponse.error) {
@@ -452,8 +450,19 @@
                 },
             });
             gisInited = true; maybeEnableButtons();
+        };
+
+        async function initializeGapiClient() { 
+            await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); 
+            gapiInited = true; 
+            maybeEnableButtons(); 
         }
-        function maybeEnableButtons() { if (gapiInited && gisInited) { authButton.disabled = false; } }
+        
+        function maybeEnableButtons() { 
+            if (gapiInited && gisInited) { 
+                authButton.disabled = false; 
+            } 
+        }
 
         authButton.addEventListener('click', () => {
              if (gapi.client.getToken() === null) {
@@ -846,4 +855,3 @@
     </script>
 </body>
 </html>
-
