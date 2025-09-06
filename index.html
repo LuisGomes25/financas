@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -443,6 +444,7 @@
                 client_id: CLIENT_ID, scope: SCOPES, callback: (tokenResponse) => {
                     if (tokenResponse.error) {
                       console.error("Authentication error:", tokenResponse);
+                      authStatus.textContent = 'Falha na autenticação.';
                       return;
                     }
                     gapi.client.setToken(tokenResponse);
@@ -474,6 +476,8 @@
                         gapi.client.setToken(null);
                         updateSigninStatus(false);
                     });
+                } else {
+                    updateSigninStatus(false);
                 }
             }
         });
@@ -855,3 +859,4 @@
     </script>
 </body>
 </html>
+
