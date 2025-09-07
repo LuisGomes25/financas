@@ -151,14 +151,14 @@
                                 <label for="category" class="block text-sm font-medium text-gray-600">Categoria</label>
                                 <select id="category" class="mt-1 block w-full rounded-md shadow-sm sm:text-sm" required>
                                     <option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option>
-                                    <option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Outros</option>
+                                    <option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Streaming</option>Outros</option>
                                 </select>
                             </div>
                             <div>
                                 <label for="bank" class="block text-sm font-medium text-gray-600">Banco</label>
                                 <select id="bank" class="mt-1 block w-full rounded-md shadow-sm sm:text-sm" required>
                                     <option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option>
-                                    <option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Outro</option>
+                                    <option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Mercado Pago</option>Digio</option>
                                 </select>
                             </div>
                             <div class="sm:col-span-2 md:col-span-3">
@@ -837,7 +837,7 @@
             const systemPrompt = "Você é um consultor financeiro amigável e prestativo. Sua tarefa é analisar os dados de despesas, rendas e reservas de um usuário e fornecer dicas personalizadas, práticas e acionáveis para economizar dinheiro. Responda em português do Brasil. Formate sua resposta usando markdown simples (cabeçalhos com ##, negrito com **, e listas com *).";
             const userQuery = `Analise meus dados financeiros e me dê dicas para melhorar minha saúde financeira.\n\n**Minhas Rendas Mensais:**\n${incomesText || 'Nenhuma renda registrada.'}\n\n**Minhas Despesas:**\n${expensesText || 'Nenhuma despesa registrada.'}\n\n**Minhas Reservas:**\n${savingsText || 'Nenhuma reserva registrada.'}`;
 
-            const geminiApiKey = ""; 
+            const geminiApiKey = "AIzaSyC9eCGpgJuypWE98f19Z2XZ3QFeHHjU4_4"; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${geminiApiKey}`;
 
             try {
@@ -927,5 +927,6 @@
     </script>
 </body>
 </html>
+
 
 
