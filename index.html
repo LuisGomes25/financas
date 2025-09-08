@@ -208,7 +208,7 @@
         
         // --- CONFIGURAÇÃO GOOGLE API ---
         const CLIENT_ID = '164577357008-o68h1qr3h69ik5ot1531f1fvvrl40umr.apps.googleusercontent.com';
-        const API_KEY = 'AIzaSyALVa2RTydoXDNsJP6NmtTV6b7zYhFixY0'; // Lembre-se de usar sua própria chave
+        const API_KEY = 'AIzaSyALVa2RTydoXDNsJP6NmtTV6b7zYhFixY0';
         const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
         const SCOPES = 'https://www.googleapis.com/auth/drive.file';
         const FILENAME = 'minhas_financas_dados.json';
@@ -269,8 +269,9 @@
                 saveDataButton.textContent = 'Erro ao Salvar';
             } finally {
                 setTimeout(() => {
-                    saveDataButton.disabled = false;
-                    saveDataButton.textContent = 'Salvar';
+                    if(!saveDataButton.disabled){
+                        saveDataButton.textContent = 'Salvar';
+                    }
                 }, 3000);
             }
         }
@@ -724,6 +725,9 @@
                             localStorage.removeItem('googleSession');
                             updateSigninStatus(false);
                         });
+                    } else {
+                        localStorage.removeItem('googleSession');
+                        updateSigninStatus(false);
                     }
                 }
             });
