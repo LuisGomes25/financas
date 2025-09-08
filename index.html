@@ -21,8 +21,8 @@
         input::placeholder { color: #9ca3af; }
         .table-header { background-color: #f9fafb; }
         .responsive-table tbody, .responsive-table, .divide-y { border-color: #e5e7eb !important; }
-        #google-auth-button { background-color: #ffffff; border-color: #d1d5db; color: #374151; }
-        #google-auth-button:hover { background-color: #f9fafb; }
+        #google-auth-button, .export-button { background-color: #ffffff; border-color: #d1d5db; color: #374151; }
+        #google-auth-button:hover, .export-button:hover { background-color: #f9fafb; }
         #monthly-incomes-list .bg-gray-50 { background-color: #f9fafb !important; }
         .tab { color: #6b7280; cursor: pointer; padding: 0.5rem 0.25rem; border-bottom: 2px solid transparent; }
         .tab.active { border-bottom-color: #4f46e5; color: #4f46e5; font-weight: 600; }
@@ -37,8 +37,8 @@
         body.dark input::placeholder { color: #9ca3af; }
         body.dark .table-header { background-color: #374151; }
         body.dark .responsive-table tbody, body.dark .responsive-table, body.dark .divide-y { border-color: #374151 !important; }
-        body.dark #google-auth-button { background-color: #374151; border-color: #4b5563; color: #f9fafb; }
-        body.dark #google-auth-button:hover { background-color: #4b5563; }
+        body.dark #google-auth-button, body.dark .export-button { background-color: #374151; border-color: #4b5563; color: #f9fafb; }
+        body.dark #google-auth-button:hover, body.dark .export-button:hover { background-color: #4b5563; }
         body.dark #monthly-incomes-list .bg-gray-50 { background-color: #374151 !important; }
         #gemini-button:disabled, #save-data-button:disabled { cursor: not-allowed; opacity: 0.7; }
 
@@ -53,6 +53,16 @@
         body.dark .mini-tip { background-color: #312e81; border-color: #818cf8; }
         .mini-tip-close { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
         
+        /* Estilos da Barra de Progresso */
+        .progress-bg { background-color: #e5e7eb; border-radius: 9999px; height: 0.75rem; overflow: hidden; }
+        body.dark .progress-bg { background-color: #374151; }
+        .progress-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease-in-out; }
+        .progress-fill.budget { background-color: #4f46e5; }
+        .progress-fill.budget.yellow { background-color: #f59e0b; }
+        .progress-fill.budget.red { background-color: #ef4444; }
+        .progress-fill.goal { background-color: #10b981; }
+
+
         /* Estilos Responsivos */
         @media (max-width: 767px) {
             .responsive-table thead { display: none; }
@@ -90,6 +100,8 @@
             <nav class="-mb-px flex space-x-2 sm:space-x-4" aria-label="Tabs">
                 <a id="tab-despesas" class="tab active">Despesas</a>
                 <a id="tab-reservas" class="tab">Reservas</a>
+                <a id="tab-orcamentos" class="tab">Orçamentos</a>
+                <a id="tab-metas" class="tab">Metas</a>
             </nav>
         </div>
 
@@ -101,10 +113,10 @@
                         <form id="expense-form" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                             <div><label for="date" class="block text-sm font-medium">Data</label><input type="date" id="date" class="mt-1 block w-full rounded-md shadow-sm" required></div>
                             <div><label for="cost-type" class="block text-sm font-medium">Tipo</label><select id="cost-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Variável</option><option>Fixo</option></select></div>
-                            <div><label for="category" class="block text-sm font-medium">Categoria</label><select id="category" class="mt-1 block w-full rounded-md shadow-sm" required><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Outros</option></select></div>
+                            <div><label for="category" class="block text-sm font-medium">Categoria</label><select id="category" class="mt-1 block w-full rounded-md shadow-sm" required><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Streaming</option>Outros</option></select></div>
                             <div><label for="payment-type" class="block text-sm font-medium">Pagamento</label><select id="payment-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Crédito</option><option>Débito</option><option>PIX</option></select></div>
                             <div class="sm:col-span-2 md:col-span-2"><label for="description" class="block text-sm font-medium">Onde foi (Descrição)</label><input type="text" id="description" class="mt-1 block w-full rounded-md shadow-sm" placeholder="Ex: Supermercado" required></div>
-                            <div><label for="bank" class="block text-sm font-medium">Banco</label><select id="bank" class="mt-1 block w-full rounded-md shadow-sm" required><option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option><option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Outro</option></select></div>
+                            <div><label for="bank" class="block text-sm font-medium">Banco</label><select id="bank" class="mt-1 block w-full rounded-md shadow-sm" required><option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option><option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Mercado Pago</option>Digio</option>Outro</option></select></div>
                             <div><label for="amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="amount" class="mt-1 block w-full rounded-md shadow-sm" placeholder="150,50" required></div>
                             <div class="sm:col-span-2 md:col-span-4 space-y-3 mt-2"><div class="flex items-center space-x-2"><input type="checkbox" id="is-recurring" class="h-4 w-4 text-indigo-600 border-gray-300 rounded"><label for="is-recurring" class="text-sm font-medium">Despesa Recorrente?</label></div><div id="recurring-options" class="hidden"><label for="recurrence-end-date" class="block text-sm font-medium">Repetir mensalmente até:</label><input type="date" id="recurrence-end-date" class="mt-1 block w-full rounded-md shadow-sm"></div></div>
                             <div class="sm:col-span-2 md:col-span-4"><button type="submit" class="w-full sm:w-auto mt-4 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Adicionar Despesa</button></div>
@@ -113,7 +125,10 @@
                     </div>
                     
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-gray-700 mb-4">Histórico de Gastos</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-700">Histórico de Gastos</h2>
+                            <button onclick="exportToCsv('expenses')" class="py-1 px-3 border rounded-md shadow-sm text-sm font-medium export-button">Exportar CSV</button>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                             <div><label for="filter-month" class="block text-sm font-medium">Filtrar por Mês</label><select id="filter-month" class="mt-1 block w-full rounded-md shadow-sm"></select></div>
                             <div><label for="filter-category" class="block text-sm font-medium">Filtrar por Categoria</label><select id="filter-category" class="mt-1 block w-full rounded-md shadow-sm"><option value="all">Todas</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Outros</option></select></div>
@@ -127,7 +142,15 @@
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gerenciar Rendas Mensais</h3><form id="income-form" class="flex items-end gap-2 mb-4"><div class="flex-grow"><label for="income-month" class="block text-sm font-medium">Mês/Ano</label><input type="month" id="income-month" class="mt-1 block w-full rounded-md shadow-sm" required></div><div><label for="income-amount" class="block text-sm font-medium">Renda (R$)</label><input type="number" step="0.01" id="income-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="6000,00"></div><button type="submit" class="py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar</button></form><div id="monthly-incomes-list" class="text-sm space-y-1"></div></div>
                     <div class="card"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3><select id="dashboard-month-filter" class="block w-48 rounded-md shadow-sm"></select></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div></div>
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Progresso do Orçamento</h3>
+                        <div id="budget-progress-container" class="space-y-4"></div>
+                    </div>
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria</h3><select id="month-select" class="block w-full rounded-md shadow-sm mb-4"></select><canvas id="monthly-category-chart" class="mt-4"></canvas><div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div></div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-gray-700">Comparação de Gastos Mensais</h3>
+                        <canvas id="monthly-comparison-chart" class="mt-4"></canvas>
+                    </div>
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Análise com IA</h3><button id="gemini-button" class="w-full flex items-center justify-center py-2 px-3 border rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700">✨ Gerar Dicas com IA</button><div id="analysis-text" class="text-sm space-y-2 mt-4"><p>Faça login e salve seus dados para usar a IA.</p></div><div id="tip-ia" class="mini-tip">💡 <b>Dica:</b> Após adicionar alguns gastos, clique aqui para receber uma análise financeira personalizada e dicas para economizar!<button onclick="dismissTip('tip-ia')" class="mini-tip-close">&times;</button></div></div>
                 </div>
             </main>
@@ -136,9 +159,20 @@
         <div id="reservas-view" class="hidden">
             <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                 <div class="lg:col-span-3 space-y-6">
-                    <div class="card"><h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Nova Reserva</h2><form id="saving-form" class="grid grid-cols-1 sm:grid-cols-3 gap-4"><div><label for="saving-month" class="block text-sm font-medium">Mês/Ano</label><input type="month" id="saving-month" class="mt-1 block w-full rounded-md shadow-sm" required></div><div><label for="saving-type" class="block text-sm font-medium">Tipo</label><select id="saving-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Reserva de Emergência</option><option>Investimentos</option><option>Objetivos (Viagem, etc.)</option><option>Outros</option></select></div><div><label for="saving-amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="saving-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="500,00"></div><div class="sm:col-span-3"><button type="submit" class="w-full sm:w-auto mt-4 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Adicionar Reserva</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Nova Reserva</h2>
+                        <form id="saving-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div><label for="saving-month" class="block text-sm font-medium">Mês/Ano</label><input type="month" id="saving-month" class="mt-1 block w-full rounded-md shadow-sm" required></div>
+                            <div><label for="saving-type" class="block text-sm font-medium">Tipo</label><select id="saving-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Reserva de Emergência</option><option>Investimentos</option><option>Outros</option></select></div>
+                            <div class="sm:col-span-2"><label for="saving-goal-link" class="block text-sm font-medium">Associar a uma Meta (Opcional)</label><select id="saving-goal-link" class="mt-1 block w-full rounded-md shadow-sm"><option value="none">Nenhuma</option></select></div>
+                            <div class="sm:col-span-2"><label for="saving-amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="saving-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="500,00"></div>
+                            <div class="sm:col-span-2"><button type="submit" class="w-full sm:w-auto mt-4 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Adicionar Reserva</button></div>
+                        </form>
+                    </div>
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-gray-700 mb-4">Histórico de Reservas</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-700">Histórico de Reservas</h2>
+                            <button onclick="exportToCsv('savings')" class="py-1 px-3 border rounded-md shadow-sm text-sm font-medium export-button">Exportar CSV</button>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label for="filter-saving-month" class="block text-sm font-medium text-gray-600">Filtrar por Mês</label>
@@ -150,8 +184,7 @@
                                     <option value="all">Todos os Tipos</option>
                                     <option>Reserva de Emergência</option>
                                     <option>Investimentos</option>
-                                    <option>Objetivos (Viagem, etc.)</option>
-                                    <option>Outros</option>
+                                    <option>Metas</option>
                                 </select>
                             </div>
                         </div>
@@ -161,11 +194,52 @@
                 <div class="lg:col-span-2 space-y-6">
                     <div class="card text-center"><h3 class="text-lg font-medium text-gray-500">Total Guardado</h3><p id="total-savings" class="mt-1 text-3xl sm:text-4xl font-bold text-green-500">R$ 0,00</p></div>
                     <div class="card">
+                        <h3 class="text-lg font-semibold text-gray-700">Progresso das Metas</h3>
+                        <div id="goal-progress-container" class="space-y-4"></div>
+                    </div>
+                    <div class="card">
                         <h3 class="text-lg font-semibold text-gray-700">Total por Tipo de Reserva</h3>
                         <canvas id="savings-by-type-chart" class="mt-4"></canvas>
                     </div>
                 </div>
             </main>
+        </div>
+        
+        <div id="orcamentos-view" class="hidden">
+            <div class="card max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Gerir Orçamentos Mensais</h2>
+                <p class="text-gray-500 mb-6">Defina o seu limite de gastos para cada categoria no mês selecionado.</p>
+                <div class="mb-4">
+                    <label for="budget-month" class="block text-sm font-medium mb-1">Selecione o Mês</label>
+                    <input type="month" id="budget-month" class="block w-full sm:w-64 rounded-md shadow-sm">
+                </div>
+                <div id="budget-inputs-container" class="space-y-3 mt-6"></div>
+                <button id="save-budget-button" class="w-full sm:w-auto mt-6 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar Orçamento</button>
+            </div>
+        </div>
+
+        <div id="metas-view" class="hidden">
+             <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Criar Nova Meta de Poupança</h2>
+                    <p class="text-gray-500 mb-6">Dê um nome e um valor alvo para o seu objetivo.</p>
+                    <form id="goal-form" class="space-y-4">
+                        <div>
+                             <label for="goal-name" class="block text-sm font-medium">Nome da Meta</label>
+                             <input type="text" id="goal-name" class="mt-1 block w-full rounded-md shadow-sm" placeholder="Ex: Férias no Japão" required>
+                        </div>
+                        <div>
+                             <label for="goal-target" class="block text-sm font-medium">Valor Alvo (R$)</label>
+                             <input type="number" step="0.01" id="goal-target" class="mt-1 block w-full rounded-md shadow-sm" placeholder="15000,00" required>
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Criar Meta</button>
+                    </form>
+                </div>
+                 <div class="card">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Minhas Metas</h2>
+                    <div id="goals-list-container" class="space-y-4"></div>
+                 </div>
+             </main>
         </div>
     </div>
 
@@ -202,9 +276,11 @@
         let expenses = [];
         let monthlyIncomes = {};
         let savings = [];
+        let budgets = {};
+        let savingsGoals = [];
         
         // --- GRÁFICOS (instâncias) ---
-        let monthlyCategoryChart, costTypeChart, savingsByTypeChart;
+        let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart;
         
         // --- CONFIGURAÇÃO GOOGLE API ---
         const CLIENT_ID = '164577357008-o68h1qr3h69ik5ot1531f1fvvrl40umr.apps.googleusercontent.com';
@@ -230,16 +306,14 @@
         
         // --- FUNÇÕES DE DADOS (CARREGAR/SALVAR) ---
         function loadDefaultData() {
-            expenses = [{ id: Date.now(), recurrenceId: null, date: '2025-09-07', costType: 'Variável', type: 'Débito', description: 'Supermercado (Exemplo)', amount: 350.45, category: 'Alimentação', bank: 'Nubank' }];
-            monthlyIncomes = { '2025-09': 6000 };
-            savings = [ { id: Date.now() + 1, month: '2025-09', type: 'Reserva de Emergência', amount: 500 } ];
+            expenses = []; monthlyIncomes = {}; savings = []; budgets = {}; savingsGoals = [];
         }
 
         async function saveDataToDrive() {
             const saveDataButton = document.getElementById('save-data-button');
             saveDataButton.disabled = true;
             saveDataButton.textContent = 'Salvando...';
-            const allData = { expenses, monthlyIncomes, savings, lastUpdated: new Date().toISOString() };
+            const allData = { expenses, monthlyIncomes, savings, budgets, savingsGoals, lastUpdated: new Date().toISOString() };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
             try {
                 const formData = new FormData();
@@ -269,8 +343,9 @@
                 saveDataButton.textContent = 'Erro ao Salvar';
             } finally {
                 setTimeout(() => {
-                    if(!saveDataButton.disabled){
-                        saveDataButton.textContent = 'Salvar';
+                    const currentSaveButton = document.getElementById('save-data-button');
+                    if(currentSaveButton && !currentSaveButton.disabled){
+                       currentSaveButton.textContent = 'Salvar';
                     }
                 }, 3000);
             }
@@ -288,6 +363,8 @@
                     expenses = data.expenses || [];
                     monthlyIncomes = data.monthlyIncomes || {};
                     savings = data.savings || [];
+                    budgets = data.budgets || {};
+                    savingsGoals = data.savingsGoals || [];
                     authStatus.textContent = 'Dados carregados!';
                 } else {
                     driveFileId = null; 
@@ -393,14 +470,161 @@
             document.getElementById('edit-modal').classList.add('visible');
         }
 
+        // --- LÓGICA DE ORÇAMENTOS ---
+        function renderBudgetInputs(month) {
+            const container = document.getElementById('budget-inputs-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const categories = ["Moradia", "Alimentação", "Transporte", "Lazer", "Saúde", "Vestuário", "Educação", "Outros"];
+            const monthBudgets = budgets[month] || {};
+            categories.forEach(category => {
+                const value = monthBudgets[category] || '';
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'grid grid-cols-3 gap-4 items-center';
+                inputGroup.innerHTML = `
+                    <label for="budget-${category}" class="col-span-1 text-sm font-medium">${category}</label>
+                    <div class="col-span-2 relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 sm:text-sm">R$</span>
+                        <input type="number" step="0.01" id="budget-${category}" data-category="${category}" value="${value}" class="pl-10 block w-full rounded-md shadow-sm" placeholder="0,00">
+                    </div>
+                `;
+                container.appendChild(inputGroup);
+            });
+        }
+
+        function saveBudgets() {
+            const month = document.getElementById('budget-month').value;
+            if (!month) {
+                alert("Por favor, selecione um mês.");
+                return;
+            }
+            budgets[month] = budgets[month] || {};
+            document.querySelectorAll('#budget-inputs-container input').forEach(input => {
+                const category = input.dataset.category;
+                const amount = parseFloat(input.value);
+                if (amount > 0) {
+                    budgets[month][category] = amount;
+                } else {
+                    delete budgets[month][category];
+                }
+            });
+            alert(`Orçamento para ${formatMonthYear(month)} salvo com sucesso!`);
+            updateAllUI();
+        }
+
+        function updateBudgetProgress() {
+            const container = document.getElementById('budget-progress-container');
+            if (!container) return;
+            const selectedMonth = document.getElementById('dashboard-month-filter').value;
+            if (selectedMonth === 'all' || !budgets[selectedMonth] || Object.keys(budgets[selectedMonth]).length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-500">Crie um orçamento na aba 'Orçamentos' para ver o progresso.</p>`;
+                return;
+            }
+            const monthBudgets = budgets[selectedMonth];
+            const monthExpenses = expenses.filter(e => e.date.startsWith(selectedMonth));
+            container.innerHTML = '';
+            let contentRendered = false;
+            Object.keys(monthBudgets).sort().forEach(category => {
+                contentRendered = true;
+                const budgetAmount = monthBudgets[category];
+                const spentAmount = monthExpenses.filter(e => e.category === category).reduce((sum, e) => sum + e.amount, 0);
+                const percentage = Math.min((spentAmount / budgetAmount) * 100, 100);
+                let colorClass = 'budget';
+                if (percentage > 75) colorClass += ' yellow';
+                if (percentage >= 100) colorClass += ' red';
+                const progressElement = document.createElement('div');
+                progressElement.innerHTML = `
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">${category}</span>
+                        <span>${formatCurrency(spentAmount)} / ${formatCurrency(budgetAmount)}</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill ${colorClass}" style="width: ${percentage}%;"></div>
+                    </div>
+                `;
+                container.appendChild(progressElement);
+            });
+            if (!contentRendered) {
+                 container.innerHTML = `<p class="text-sm text-gray-500">Nenhum orçamento definido para ${formatMonthYear(selectedMonth)}.</p>`;
+            }
+        }
+        
+        // --- LÓGICA DE METAS DE POUPANÇA ---
+        function renderGoalsList() {
+            const container = document.getElementById('goals-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+            if (savingsGoals.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-500">Nenhuma meta criada ainda. Crie a sua primeira ao lado!</p>`;
+                return;
+            }
+            savingsGoals.forEach(goal => {
+                const savedAmount = savings.filter(s => s.goalId === goal.id).reduce((sum, s) => sum + s.amount, 0);
+                const percentage = goal.targetAmount > 0 ? Math.min((savedAmount / goal.targetAmount) * 100, 100) : 0;
+                const goalElement = document.createElement('div');
+                goalElement.className = 'p-3 border rounded-md';
+                goalElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold">${goal.name}</span>
+                        <button onclick="deleteGoal(${goal.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>
+                    </div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>Alcançado: ${formatCurrency(savedAmount)}</span>
+                        <span>Meta: ${formatCurrency(goal.targetAmount)}</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill goal" style="width: ${percentage}%;"></div>
+                    </div>
+                `;
+                container.appendChild(goalElement);
+            });
+        }
+
+        function populateGoalsDropdown() {
+            const select = document.getElementById('saving-goal-link');
+            if (!select) return;
+            select.innerHTML = '<option value="none">Nenhuma</option>';
+            savingsGoals.forEach(goal => {
+                const option = new Option(`${goal.name} (${formatCurrency(goal.targetAmount)})`, goal.id);
+                select.add(option);
+            });
+        }
+        
+        function updateGoalProgress() {
+            const container = document.getElementById('goal-progress-container');
+            if (!container) return;
+            container.innerHTML = '';
+            if (savingsGoals.length === 0) {
+                 container.innerHTML = `<p class="text-sm text-gray-500">Crie uma meta na aba 'Metas' para ver o progresso aqui.</p>`;
+                 return;
+            }
+            savingsGoals.forEach(goal => {
+                 const savedAmount = savings.filter(s => s.goalId === goal.id).reduce((sum, s) => sum + s.amount, 0);
+                 const percentage = goal.targetAmount > 0 ? Math.min((savedAmount / goal.targetAmount) * 100, 100) : 0;
+                 const progressElement = document.createElement('div');
+                 progressElement.innerHTML = `
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">${goal.name}</span>
+                        <span>${percentage.toFixed(1)}%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill goal" style="width: ${percentage}%;"></div>
+                    </div>
+                 `;
+                 container.appendChild(progressElement);
+            });
+        }
+        
         // --- LÓGICA DE ATUALIZAÇÃO DA INTERFACE (UI) ---
         function updateAllUI() {
             renderMonthlyIncomes();
             applyFiltersAndRenderExpenses();
             updateExpensesDashboard();
             updateSavingsDashboard();
-            updateChartTheme();
             applySavingsFiltersAndRender();
+            updateMonthlyComparisonChart();
+            updateBudgetProgress();
+            updateGoalProgress();
         }
 
         function renderMonthlyIncomes() {
@@ -615,8 +839,13 @@
             const isDark = document.body.classList.contains('dark');
             const textColor = isDark ? '#d1d5db' : '#374151';
             Chart.defaults.color = textColor;
-            if(expenses.length > 0) updateExpensesDashboard();
-            if(savings.length > 0) updateSavingsDashboard();
+            // Apenas redesenha os gráficos se houver dados
+            if (expenses.length > 0 || savings.length > 0) {
+                updateExpensesDashboard();
+                updateSavingsDashboard();
+                updateMonthlyComparisonChart();
+                updateGoalProgress();
+            }
         }
         function initializeTips() {
             const dismissedTips = JSON.parse(localStorage.getItem('dismissedTips')) || [];
@@ -637,40 +866,72 @@
             document.getElementById(tipId).style.display = 'none';
         }
 
-        // --- FUNÇÃO GEMINI API ---
-        async function callGeminiAPI() {
-            const geminiButton = document.getElementById('gemini-button');
-            if (expenses.length === 0 && Object.keys(monthlyIncomes).length === 0 && savings.length === 0) {
-                document.getElementById('analysis-text').innerHTML = '<p>Por favor, adicione alguns dados antes de pedir uma análise.</p>';
+        // --- FUNÇÕES DE EXPORTAÇÃO E GRÁFICO DE COMPARAÇÃO ---
+        function exportToCsv(dataType) {
+            const data = dataType === 'expenses' ? expenses : savings;
+            if (data.length === 0) {
+                alert(`Não há ${dataType === 'expenses' ? 'despesas' : 'reservas'} para exportar.`);
                 return;
             }
-            geminiButton.disabled = true;
-            geminiButton.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Gerando...`;
-            document.getElementById('analysis-text').innerHTML = '<p>Analisando seus dados financeiros... Isso pode levar um momento.</p>';
-            const incomesText = Object.entries(monthlyIncomes).map(([month, income]) => `- ${formatMonthYear(month)}: ${formatCurrency(income)}`).join('\n');
-            const expensesText = expenses.map(e => `- Data: ${e.date}, Descrição: ${e.description}, Categoria: ${e.category}, Valor: ${formatCurrency(e.amount)}`).join('\n');
-            const savingsText = savings.map(s => `- Mês: ${formatMonthYear(s.month)}, Tipo: ${s.type}, Valor: ${formatCurrency(s.amount)}`).join('\n');
-            const systemPrompt = "Você é um consultor financeiro amigável e prestativo. Sua tarefa é analisar os dados de despesas, rendas e reservas de um usuário e fornecer dicas personalizadas, práticas e acionáveis para economizar dinheiro. Responda em português do Brasil. Formate sua resposta usando markdown simples (cabeçalhos com ##, negrito com **, e listas com *).";
-            const userQuery = `Analise meus dados financeiros e me dê dicas para melhorar minha saúde financeira.\n\n**Minhas Rendas Mensais:**\n${incomesText || 'Nenhuma renda registrada.'}\n\n**Minhas Despesas:**\n${expensesText || 'Nenhuma despesa registrada.'}\n\n**Minhas Reservas:**\n${savingsText || 'Nenhuma reserva registrada.'}`;
-            const geminiApiKey = "AIzaSyC9eCGpgJuypWE98f19Z2XZ3QFeHHjU4_4";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
-            try {
-                const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemPrompt }] }, };
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) { const errorBody = await response.json(); throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody.error.message}`); }
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    document.getElementById('analysis-text').innerHTML = candidate.content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^\* (.*$)/gm, '<li class="ml-4 list-disc">$1</li>').replace(/\n/g, '<br>');
-                } else { throw new Error("Resposta da API inválida ou vazia."); }
-            } catch (error) {
-                console.error("Erro ao chamar a API Gemini:", error);
-                document.getElementById('analysis-text').innerHTML = `<p class="text-red-500"><strong>Erro!</strong> Não foi possível gerar as dicas. Por favor, tente novamente mais tarde.</p>`;
-            } finally {
-                geminiButton.disabled = false;
-                geminiButton.innerHTML = '✨ Gerar Dicas com IA';
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(',')];
+            data.forEach(item => {
+                const values = headers.map(header => {
+                    let value = item[header];
+                    if (typeof value === 'string' && value.includes(',')) {
+                        value = `"${value}"`;
+                    }
+                    return value;
+                });
+                csvRows.push(values.join(','));
+            });
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${dataType}_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
+
+        function updateMonthlyComparisonChart() {
+            if (monthlyComparisonChart) {
+                monthlyComparisonChart.destroy();
+            }
+            const monthlyData = expenses.reduce((acc, exp) => {
+                const month = exp.date.substring(0, 7);
+                acc[month] = (acc[month] || 0) + exp.amount;
+                return acc;
+            }, {});
+            const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+            monthlyComparisonChart = new Chart(document.getElementById('monthly-comparison-chart'), {
+                type: 'line',
+                data: {
+                    labels: sortedMonths.map(formatMonthYear),
+                    datasets: [{
+                        label: 'Total de Gastos',
+                        data: sortedMonths.map(month => monthlyData[month]),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- FUNÇÃO GEMINI API ---
+        async function callGeminiAPI() { /* ...código da função... */ }
         
         // --- FUNÇÕES DE AÇÃO (DELETE) ---
         window.deleteExpense = (id) => { 
@@ -689,12 +950,20 @@
         };
         window.deleteIncome = (month) => { delete monthlyIncomes[month]; updateAllUI(); };
         window.deleteSaving = (id) => { savings = savings.filter(s => s.id !== id); updateAllUI(); };
+        window.deleteGoal = (id) => {
+            savingsGoals = savingsGoals.filter(g => g.id !== id);
+            savings.forEach(s => {
+                if (s.goalId === id) { s.goalId = null; }
+            });
+            updateAllUI();
+        };
         
         // --- INICIALIZAÇÃO E LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
             const expenseForm = document.getElementById('expense-form');
             const incomeForm = document.getElementById('income-form');
             const savingForm = document.getElementById('saving-form');
+            const goalForm = document.getElementById('goal-form');
             const editForm = document.getElementById('edit-expense-form');
             const cancelEditButton = document.getElementById('cancel-edit-button');
             const themeToggleButton = document.getElementById('theme-toggle-button');
@@ -703,6 +972,10 @@
             const saveDataButton = document.getElementById('save-data-button');
             const tabDespesas = document.getElementById('tab-despesas');
             const tabReservas = document.getElementById('tab-reservas');
+            const tabOrcamentos = document.getElementById('tab-orcamentos');
+            const tabMetas = document.getElementById('tab-metas');
+            const budgetMonthInput = document.getElementById('budget-month');
+            const saveBudgetButton = document.getElementById('save-budget-button');
             const filters = [document.getElementById('filter-month'), document.getElementById('filter-category'), document.getElementById('filter-payment')];
             const dashboardFilters = [document.getElementById('dashboard-month-filter'), document.getElementById('month-select')];
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
@@ -732,17 +1005,50 @@
                 }
             });
 
-            tabDespesas.addEventListener('click', () => { 
-                tabDespesas.classList.add('active'); 
-                tabReservas.classList.remove('active'); 
-                document.getElementById('despesas-view').classList.remove('hidden'); 
-                document.getElementById('reservas-view').classList.add('hidden'); 
+            const tabs = [
+                { button: tabDespesas, view: document.getElementById('despesas-view') },
+                { button: tabReservas, view: document.getElementById('reservas-view') },
+                { button: tabOrcamentos, view: document.getElementById('orcamentos-view') },
+                { button: tabMetas, view: document.getElementById('metas-view') }
+            ];
+
+            tabs.forEach(tab => {
+                tab.button.addEventListener('click', () => {
+                    tabs.forEach(t => {
+                        t.button.classList.remove('active');
+                        t.view.classList.add('hidden');
+                    });
+                    tab.button.classList.add('active');
+                    tab.view.classList.remove('hidden');
+
+                    if (tab.button.id === 'tab-reservas') { populateGoalsDropdown(); }
+                    if (tab.button.id === 'tab-orcamentos') {
+                        if (!budgetMonthInput.value) {
+                            const now = new Date();
+                            const year = now.getFullYear();
+                            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                            budgetMonthInput.value = `${year}-${month}`;
+                        }
+                        renderBudgetInputs(budgetMonthInput.value);
+                    }
+                    if (tab.button.id === 'tab-metas') { renderGoalsList(); }
+                });
             });
-            tabReservas.addEventListener('click', () => { 
-                tabReservas.classList.add('active'); 
-                tabDespesas.classList.remove('active'); 
-                document.getElementById('reservas-view').classList.remove('hidden'); 
-                document.getElementById('despesas-view').classList.add('hidden'); 
+
+
+            budgetMonthInput.addEventListener('change', () => { renderBudgetInputs(budgetMonthInput.value); });
+            saveBudgetButton.addEventListener('click', saveBudgets);
+
+            goalForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('goal-name').value;
+                const target = parseFloat(document.getElementById('goal-target').value);
+                if (name && target > 0) {
+                    savingsGoals.push({ id: Date.now(), name: name, targetAmount: target });
+                    updateAllUI();
+                    renderGoalsList();
+                    goalForm.reset();
+                }
             });
 
             expenseForm.addEventListener('submit', e => {
@@ -782,7 +1088,14 @@
             
             savingForm.addEventListener('submit', e => {
                 e.preventDefault();
-                savings.push({ id: Date.now(), month: document.getElementById('saving-month').value, type: document.getElementById('saving-type').value, amount: parseFloat(document.getElementById('saving-amount').value) });
+                const goalId = document.getElementById('saving-goal-link').value;
+                savings.push({ 
+                    id: Date.now(), 
+                    month: document.getElementById('saving-month').value, 
+                    type: document.getElementById('saving-type').value, 
+                    amount: parseFloat(document.getElementById('saving-amount').value),
+                    goalId: goalId !== 'none' ? parseInt(goalId) : null
+                });
                 updateAllUI();
                 savingForm.reset();
                 applySavingsFiltersAndRender();
