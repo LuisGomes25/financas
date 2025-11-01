@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilha de Finanças Pessoais</title>
+    <title>Planilha de Finanças Pessoais com IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -140,7 +140,13 @@
     
                 <div class="lg:col-span-2 space-y-6">
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gerenciar Rendas Mensais</h3><form id="income-form" class="flex items-end gap-2 mb-4"><div class="flex-grow"><label for="income-month" class="block text-sm font-medium">Mês/Ano</label><input type="month" id="income-month" class="mt-1 block w-full rounded-md shadow-sm" required></div><div><label for="income-amount" class="block text-sm font-medium">Renda (R$)</label><input type="number" step="0.01" id="income-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="6000,00"></div><button type="submit" class="py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar</button></form><div id="monthly-incomes-list" class="text-sm space-y-1"></div></div>
-                    <div class="card"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div></div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3>
+                            <select id="visao-geral-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div>
+                    </div>
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
                     <div class="card">
                         <h3 class="text-lg font-semibold text-gray-700">Renda Comprometida por Pagamento</h3>
@@ -599,11 +605,19 @@
 
         function populateExpenseMonthFilter() {
             const uniqueMonths = [...new Set(expenses.map(e => e.date.substring(0, 7)))].sort().reverse();
-            const monthSelect = document.getElementById('filter-month');
-            const currentVal = monthSelect.value;
-            monthSelect.innerHTML = '<option value="all">Todos os Meses</option>';
-            uniqueMonths.forEach(m => monthSelect.add(new Option(formatMonthYear(m), m)));
-            monthSelect.value = uniqueMonths.includes(currentVal) ? currentVal : 'all';
+            
+            const mainFilter = document.getElementById('filter-month');
+            const visaoGeralFilter = document.getElementById('visao-geral-month-filter');
+        
+            const currentMainVal = mainFilter.value;
+            mainFilter.innerHTML = '<option value="all">Todos os Meses</option>';
+            uniqueMonths.forEach(m => mainFilter.add(new Option(formatMonthYear(m), m)));
+            mainFilter.value = uniqueMonths.includes(currentMainVal) ? currentMainVal : 'all';
+
+            const currentVisaoVal = visaoGeralFilter.value;
+            visaoGeralFilter.innerHTML = '<option value="all">Todos os Meses</option>';
+            uniqueMonths.forEach(m => visaoGeralFilter.add(new Option(formatMonthYear(m), m)));
+            visaoGeralFilter.value = uniqueMonths.includes(currentVisaoVal) ? currentVisaoVal : (uniqueMonths[0] || 'all');
         }
 
         function renderMonthlyIncomes() {
@@ -617,7 +631,11 @@
             });
         }
         
-        function updateSummaryCards(filteredData, month) {
+        function updateSummaryCards() {
+            const month = document.getElementById('visao-geral-month-filter').value;
+            const filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => e.date.startsWith(month));
             const relevantIncome = (month === 'all')
                 ? Object.values(monthlyIncomes).reduce((s, i) => s + i, 0)
                 : monthlyIncomes[month] || 0;
@@ -661,7 +679,7 @@
                 options: { responsive: true, plugins: { legend: { position: 'top' } } }
             });
         }
-        
+
         function updateBudgetProgress(filteredData, month) {
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
@@ -696,7 +714,7 @@
                  container.innerHTML = `<p class="text-sm text-gray-500">Nenhum orçamento definido para ${formatMonthYear(month)}.</p>`;
             }
         }
-
+        
         function applySavingsFiltersAndRender() {
             const monthFilter = document.getElementById('filter-saving-month').value;
             const typeFilter = document.getElementById('filter-saving-type').value;
@@ -820,7 +838,7 @@
             });
         }
         
-        // --- TEMA E DICAS ---
+        // --- TEMA E DICAS (VERSÃO CORRIGIDA) ---
         function applyTheme(theme) {
             const sunIcon = document.getElementById('theme-icon-sun');
             const moonIcon = document.getElementById('theme-icon-moon');
@@ -834,7 +852,7 @@
                 moonIcon.classList.add('hidden');
             }
             updateChartTheme(); // 1. Define as novas cores
-            updateAllUI();      // 2. Redesenha a UI com as novas cores (sem loop)
+            updateAllUI();      // 2. Redesenha toda a UI UMA VEZ com as novas cores
         }
         function toggleTheme() {
             const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
@@ -1045,6 +1063,7 @@
             const saveBudgetButton = document.getElementById('save-budget-button');
             const filters = [document.getElementById('filter-month'), document.getElementById('filter-category'), document.getElementById('filter-payment')];
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
+            const visaoGeralMonthFilter = document.getElementById('visao-geral-month-filter');
 
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
@@ -1195,6 +1214,11 @@
             saveDataButton.addEventListener('click', saveDataToDrive);
             filters.forEach(el => el.addEventListener('change', syncDespesasView));
             savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
+            
+            if (visaoGeralMonthFilter) {
+                visaoGeralMonthFilter.addEventListener('change', updateSummaryCards);
+            }
+
             document.getElementById('is-recurring').addEventListener('change', (e) => { 
                 document.getElementById('recurring-options').classList.toggle('hidden', !e.target.checked);
                 document.getElementById('recurrence-end-date').required = e.target.checked;
@@ -1203,4 +1227,3 @@
     </script>
 </body>
 </html>
-
