@@ -714,16 +714,16 @@
             if (!container) return;
             container.innerHTML = '';
             
-            if (monthKey === 'range') {
-                monthKey = 'default';
-            }
+            const isRangeMode = (monthKey === 'range');
+            const budgetKey = isRangeMode ? 'default' : monthKey;
             
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
-            const monthBudgets = budgets[monthKey] || budgets["default"] || {};
+            const monthBudgets = budgets[budgetKey] || budgets["default"] || {};
+            const defaultBudgets = budgets["default"] || {};
 
             categories.forEach(category => {
-                const value = (monthKey === 'range') ? '' : (monthBudgets[category] || '');
-                const placeholder = (budgets["default"][category] || '0,00');
+                const value = isRangeMode ? '' : (monthBudgets[category] || '');
+                const placeholder = defaultBudgets[category] || '0,00';
 
                 const inputGroup = document.createElement('div');
                 inputGroup.className = 'grid grid-cols-3 gap-4 items-center';
@@ -809,7 +809,7 @@
                 goalElement.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-semibold">${goal.name}</span>
-                        <button onclick="deleteGoal(${goal.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>
+                        <button onclick="deleteGoal(${goal.id})" class="text-red-600 hover:text-red-700 text-xs font-semibold">Excluir</button>
                     </div>
                     <div class="flex justify-between text-sm mb-1">
                         <span>Alcançado: ${formatCurrency(savedAmount)}</span>
@@ -901,7 +901,7 @@
             // A tabela de histórico SÓ MOSTRA o que já foi pago (expenses)
             let filteredData = (month === 'all')
                 ? [...expenses]
-                : expenses.filter(e => (e.type === 'Crédito' ? e.billMonth === month : e.date.startsWith(month)));
+                : getExpensesForBudgetMonth(month, 'all', 'all').filter(e => expenses.includes(e));
 
             if (category !== 'all') {
                 filteredData = filteredData.filter(e => e.category === category);
