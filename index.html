@@ -491,6 +491,19 @@
         let gisInited = false;
         let driveFileId = null;
 
+        // --- MAPA DE CORES DOS BANCOS ---
+        const BANK_COLORS = {
+            'Nubank': '#8A05BE',
+            'Itaú': '#EC7000',
+            'Banco do Brasil': '#0033A0',
+            'Bradesco': '#CC092F',
+            'Caixa': '#0073B0',
+            'Santander': '#EC0000',
+            'Inter': '#FF8700',
+            'Mercado Pago': '#00B1EA',
+            'Outro': '#6B7280'
+        };
+
         // --- FUNÇÕES DE FORMATAÇÃO ---
         const formatCurrency = (value) => `R$ ${typeof value === 'number' ? value.toFixed(2).replace('.', ',') : '0,00'}`;
         const formatDate = (dateString) => { const [y, m, d] = dateString.split('-'); return `${d}/${m}/${y}`; };
@@ -827,15 +840,16 @@
         // Esta é a nova função principal que calcula os dados filtrados
         function getExpensesForBudgetMonth(month, category, payment) {
             let data = [];
+            const allEntries = [...expenses, ...futureEntries]; // Combina pagos e futuros
             
             // 1. Define a base de dados (Mês)
             if (month === 'all') {
-                data = [...expenses];
+                data = [...allEntries];
             } else {
                 // Pega gastos normais (Débito, PIX, Boleto) PELA DATA DA COMPRA
-                const nonCredit = expenses.filter(e => e.type !== 'Crédito' && e.date.startsWith(month));
+                const nonCredit = allEntries.filter(e => e.type !== 'Crédito' && e.date.startsWith(month));
                 // Pega gastos de Crédito PELO MÊS DA FATURA
-                const credit = expenses.filter(e => e.type === 'Crédito' && e.billMonth === month);
+                const credit = allEntries.filter(e => e.type === 'Crédito' && e.billMonth === month);
                 data = [...nonCredit, ...credit];
             }
 
@@ -874,7 +888,7 @@
             populateGoalsDropdown();
             renderGoalsList();
 
-            // Atualiza o gráfico de comparação geral (que não usa filtro)
+            // Atualiza o gráfico de comparação geral
             updateMonthlyComparisonChart();
         }
 
@@ -884,9 +898,19 @@
             const category = document.getElementById('filter-category').value;
             const payment = document.getElementById('filter-payment').value;
             
-            const filteredData = getExpensesForBudgetMonth(month, category, payment);
-            const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
+            // A tabela de histórico SÓ MOSTRA o que já foi pago (expenses)
+            let filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => (e.type === 'Crédito' ? e.billMonth === month : e.date.startsWith(month)));
 
+            if (category !== 'all') {
+                filteredData = filteredData.filter(e => e.category === category);
+            }
+            if (payment !== 'all') {
+                filteredData = filteredData.filter(e => e.type === payment);
+            }
+
+            const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
             renderExpenseTable(tableShouldBeEmpty ? [] : filteredData);
         }
 
@@ -902,6 +926,7 @@
             updatePaymentTypeCommitmentChart(filteredData, month);
             updateBillByBankChart(filteredData);
         }
+
 
         // Popula TODOS os filtros de mês
         function populateAllMonthFilters() {
@@ -1294,7 +1319,8 @@
             if (monthlyComparisonChart) {
                 monthlyComparisonChart.destroy();
             }
-            const monthlyData = expenses.reduce((acc, exp) => {
+            const allEntries = [...expenses, ...futureEntries];
+            const monthlyData = allEntries.reduce((acc, exp) => {
                 const month = exp.type === 'Crédito' ? exp.billMonth : exp.date.substring(0, 7);
                 if (month) {
                     acc[month] = (acc[month] || 0) + exp.amount;
@@ -1375,15 +1401,18 @@
                 acc[bank] = (acc[bank] || 0) + amount;
                 return acc;
             }, {});
+            
+            const labels = Object.keys(bankData);
+            const colors = labels.map(bank => BANK_COLORS[bank] || BANK_COLORS['Outro']);
 
             billByBankChart = new Chart(container.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(bankData),
+                    labels: labels,
                     datasets: [{ 
                         label: 'Valor da Fatura', 
                         data: Object.values(bankData),
-                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899', '#64748b', '#06b6d4', '#f97316']
+                        backgroundColor: colors
                     }]
                 },
                 options: {
@@ -1731,7 +1760,7 @@
                             if (scope === 'future' && new Date(entry.date) >= sourceDate) shouldUpdate = true;
                         }
                         return shouldUpdate;
-Two};
+                    };
 
                     expenses.forEach((expense, index) => {
                         if (updateLogic(expense)) {
