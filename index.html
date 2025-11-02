@@ -64,6 +64,12 @@
 
         /* Estilos Responsivos */
         @media (max-width: 767px) {
+            /* CORREÇÃO: Faz as abas quebrarem a linha em vez de estourarem a tela */
+            nav[aria-label="Tabs"] {
+                flex-wrap: wrap;
+                padding-bottom: 0.5rem; /* Adiciona espaço se quebrar a linha */
+            }
+
             .responsive-table thead { display: none; }
             .responsive-table tbody tr { display: block; border-radius: 0.5rem; margin-bottom: 1rem; padding: 1rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
             body.light .responsive-table tbody tr { border: 1px solid #e5e7eb; background-color: white;}
@@ -218,7 +224,6 @@
                 </div>
     
                 <div class="lg:col-span-2 space-y-6">
-                    
                     <div class="card">
                         <label for="dashboard-month-filter" class="block text-sm font-medium mb-2">Filtro Mestre do Dashboard</label>
                         <select id="dashboard-month-filter" class="block w-full rounded-md shadow-sm sm:text-sm"></select>
@@ -275,7 +280,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="renda-view" class="hidden">
             <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                 <div class="lg:col-span-3 space-y-6">
@@ -527,6 +532,7 @@
         let budgets = { "default": {} };
         let savingsGoals = [];
         let lastSaveTime = null;
+        let filtersState = {}; // NOVO: Para guardar os filtros
         
         // --- GRÁFICOS (instâncias) ---
         let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart, billByBankChart, monthlyIncomeChart;
@@ -574,6 +580,7 @@
         // --- FUNÇÕES DE DADOS (CARREGAR/SALVAR) ---
         function loadDefaultData() {
             expenses = []; futureEntries = []; incomes = []; savings = []; budgets = { "default": {} }; savingsGoals = [];
+            filtersState = {};
             document.getElementById('last-save-status').textContent = 'Nunca salvo.';
         }
 
@@ -582,7 +589,7 @@
             saveDataButton.disabled = true;
             saveDataButton.textContent = 'Salvando...';
             const saveTime = new Date().toISOString();
-            const allData = { expenses, futureEntries, incomes, savings, budgets, savingsGoals, lastUpdated: saveTime };
+            const allData = { expenses, futureEntries, incomes, savings, budgets, savingsGoals, filtersState, lastUpdated: saveTime };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
             try {
                 const formData = new FormData();
@@ -651,6 +658,7 @@
                     savings = data.savings || [];
                     budgets = data.budgets || { "default": {} };
                     savingsGoals = data.savingsGoals || [];
+                    filtersState = data.filtersState || {};
                     lastSaveTime = data.lastUpdated || null;
                     authStatus.textContent = 'Dados carregados!';
                     document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(lastSaveTime)}`;
@@ -779,7 +787,6 @@
             container.innerHTML = '';
             
             const isRangeMode = (monthKey === 'range');
-            // CORREÇÃO AQUI: Se for range, não deve carregar valor, só placeholder
             const budgetKeyToShow = isRangeMode ? 'default' : monthKey; 
             
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
@@ -787,7 +794,7 @@
             const defaultBudgets = budgets["default"] || {};
 
             categories.forEach(category => {
-                const value = isRangeMode ? '' : (monthBudgets[category] || ''); // Se for range, valor é vazio
+                const value = isRangeMode ? '' : (monthBudgets[category] || '');
                 const placeholder = (defaultBudgets[category] || '0,00');
 
                 const inputGroup = document.createElement('div');
@@ -934,6 +941,7 @@
         // Função Central de Atualização
         function updateAllUI() {
             populateAllMonthFilters(); // Popula todos os seletores de mês
+            restoreNonMonthFilters();   // Restaura filtros de categoria/pagamento
             
             // Atualiza Dashboards da Aba Despesas
             syncDespesasView(); // Atualiza a tabela de despesas
@@ -992,6 +1000,16 @@
             updatePaymentTypeCommitmentChart(filteredData, month);
             updateBillByBankChart(filteredData);
         }
+        
+        function restoreNonMonthFilters() {
+            const filterIds = ['filter-category', 'filter-payment', 'filter-saving-type'];
+            filterIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && filtersState[id]) {
+                    el.value = filtersState[id];
+                }
+            });
+        }
 
         // Popula TODOS os filtros de mês
         function populateAllMonthFilters() {
@@ -1013,7 +1031,7 @@
                 const select = document.getElementById(filterId);
                 if (!select) return;
                 
-                const currentVal = select.value;
+                const currentVal = filtersState[filterId] || select.value;
                 select.innerHTML = '<option value="all">Todos os Meses</option>';
                 uniqueMonths.forEach(m => select.add(new Option(formatMonthYear(m), m)));
                 
@@ -1024,6 +1042,7 @@
                 } else {
                     select.value = uniqueMonths.includes(currentMonthKey) ? currentMonthKey : (uniqueMonths[uniqueMonths.length - 1] || 'all');
                 }
+                filtersState[filterId] = select.value; // Salva o estado final
             });
         }
         
@@ -1083,6 +1102,7 @@
         }
 
         function updateSummaryCards(filteredData, month) {
+            // Calcula a renda relevante para o mês (ou todos)
             const relevantIncome = (month === 'all')
                 ? incomes.reduce((sum, income) => sum + income.amount, 0)
                 : incomes.filter(i => i.month === month).reduce((sum, i) => sum + i.amount, 0);
@@ -1094,7 +1114,7 @@
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
         }
 
-        function updateMonthlyAnalysis(filteredData) {
+        function updateMonthlyAnalysis(filteredData, month) {
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
             if (monthlyCategoryChart) monthlyCategoryChart.destroy();
@@ -1107,7 +1127,6 @@
             chartCanvas.style.display = 'block';
             const categoryData = filteredData.reduce((acc, {category, amount}) => ({...acc, [category]: (acc[category] || 0) + amount}), {});
             
-            const month = document.getElementById('dashboard-month-filter').value;
             let detailsHtml = `<strong>Resumo de ${month === 'all' ? 'Todos os Meses' : formatMonthYear(month)}:</strong><ul class="list-disc ml-4 mt-2">`;
             Object.entries(categoryData).sort(([,a],[,b]) => b-a).forEach(([cat, amt]) => detailsHtml += `<li>${cat}: <strong>${formatCurrency(amt)}</strong></li>`);
             detailsContainer.innerHTML = detailsHtml + '</ul>';
@@ -1171,18 +1190,23 @@
         }
         
         function applySavingsFiltersAndRender() {
-            const monthFilter = document.getElementById('filter-saving-month').value;
-            const typeFilter = document.getElementById('filter-saving-type').value;
-            if (monthFilter === 'all' && typeFilter === 'all') {
+            const monthFilter = document.getElementById('filter-saving-month');
+            const typeFilter = document.getElementById('filter-saving-type');
+            if (!monthFilter || !typeFilter) return;
+
+            const selectedMonth = monthFilter.value;
+            const selectedType = typeFilter.value;
+
+            if (selectedMonth === 'all' && selectedType === 'all') {
                 renderSavingsTable([]);
                 return;
             }
             let filteredSavings = [...savings];
-            if (monthFilter !== 'all') {
-                filteredSavings = filteredSavings.filter(s => s.month === monthFilter);
+            if (selectedMonth !== 'all') {
+                filteredSavings = filteredSavings.filter(s => s.month === selectedMonth);
             }
-            if (typeFilter !== 'all') {
-                filteredSavings = filteredSavings.filter(s => s.type === typeFilter);
+            if (selectedType !== 'all') {
+                filteredSavings = filteredSavings.filter(s => s.type === selectedType);
             }
             renderSavingsTable(filteredSavings);
         }
@@ -1215,10 +1239,12 @@
             const uniqueMonths = [...new Set(savings.map(s => s.month))].sort(); // Ordem Crescente
             const monthFilterEl = document.getElementById('filter-saving-month');
             if (!monthFilterEl) return;
-            const currentMonthVal = monthFilterEl.value;
+            const currentMonthVal = filtersState[monthFilterEl.id] || monthFilterEl.value;
             monthFilterEl.innerHTML = '<option value="all">Todos os Meses</option>';
             uniqueMonths.forEach(m => monthFilterEl.add(new Option(formatMonthYear(m), m)));
             monthFilterEl.value = currentMonthVal;
+            filtersState[monthFilterEl.id] = monthFilterEl.value; // Salva o estado
+            
             const byTypeData = savings.reduce((acc, {type, amount}) => {
                 const key = type;
                 acc[key] = (acc[key] || 0) + amount;
@@ -1667,13 +1693,23 @@
             
             // Listeners dos Filtros Principais (só para a tabela)
             const filters = [document.getElementById('filter-month'), document.getElementById('filter-category'), document.getElementById('filter-payment')];
-            filters.forEach(el => el.addEventListener('change', syncDespesasView));
+            filters.forEach(el => el.addEventListener('change', (e) => {
+                filtersState[e.target.id] = e.target.value;
+                syncDespesasView();
+            }));
 
             // Listener do Filtro Mestre do Dashboard
-            document.getElementById('dashboard-month-filter').addEventListener('change', updateDashboardCharts);
+            const dashboardFilter = document.getElementById('dashboard-month-filter');
+            dashboardFilter.addEventListener('change', (e) => {
+                filtersState[e.target.id] = e.target.value;
+                updateDashboardCharts();
+            });
             
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
-            savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
+            savingFilters.forEach(el => el.addEventListener('change', (e) => {
+                filtersState[e.target.id] = e.target.value;
+                applySavingsFiltersAndRender();
+            }));
 
             // Setup Inicial
             const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -1824,6 +1860,7 @@
                 toggleBillMonthField('form');
             });
 
+            // CORREÇÃO: Listener do formulário de Renda
             incomeForm.addEventListener('submit', e => { 
                 e.preventDefault(); 
                 const month = document.getElementById('income-month').value;
