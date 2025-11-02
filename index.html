@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilha de Finanças Pessoais</title>
+    <title>Planilha de Finanças Pessoais com IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -83,6 +83,7 @@
         <header class="mb-4 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Minhas Finanças</h1>
+                <p class="text-gray-500 mt-1">Sua planilha e dashboard financeiro com salvamento no Google Drive.</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
                  <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
@@ -295,13 +296,45 @@
         <div id="orcamentos-view" class="hidden">
             <div class="card max-w-2xl mx-auto">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Gerir Orçamentos Mensais</h2>
-                <p class="text-gray-500 mb-6">Defina o seu limite de gastos para cada categoria no mês selecionado.</p>
-                <div class="mb-4">
-                    <label for="budget-month" class="block text-sm font-medium mb-1">Selecione o Mês</label>
-                    <input type="month" id="budget-month" class="block w-full sm:w-64 rounded-md shadow-sm">
+                <p class="text-gray-500 mb-6">Defina o seu limite de gastos para cada categoria.</p>
+                
+                <fieldset class="mb-4">
+                    <legend class="block text-sm font-medium mb-2">Modo de Edição</legend>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="flex items-center">
+                            <input id="budget-mode-default" name="budget-edit-mode" type="radio" value="default" class="h-4 w-4" checked>
+                            <label for="budget-mode-default" class="ml-2 block text-sm">Orçamento Padrão (para todos os meses)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="budget-mode-single" name="budget-edit-mode" type="radio" value="single" class="h-4 w-4">
+                            <label for="budget-mode-single" class="ml-2 block text-sm">Mês Específico</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="budget-mode-range" name="budget-edit-mode" type="radio" value="range" class="h-4 w-4">
+                            <label for="budget-mode-range" class="ml-2 block text-sm">Aplicar em Intervalo</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div id="budget-date-pickers" class="hidden space-y-4 sm:space-y-0 sm:flex sm:gap-4 mb-6">
+                    <div id="budget-single-month-container" class="hidden">
+                        <label for="budget-month" class="block text-sm font-medium mb-1">Selecione o Mês</label>
+                        <input type="month" id="budget-month" class="block w-full rounded-md shadow-sm">
+                    </div>
+                    <div id="budget-range-container" class="hidden flex-grow sm:flex sm:gap-4">
+                        <div>
+                            <label for="budget-start-month" class="block text-sm font-medium mb-1">Mês Inicial</label>
+                            <input type="month" id="budget-start-month" class="block w-full rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="budget-end-month" class="block text-sm font-medium mb-1">Mês Final</label>
+                            <input type="month" id="budget-end-month" class="block w-full rounded-md shadow-sm">
+                        </div>
+                    </div>
                 </div>
+
                 <div id="budget-inputs-container" class="space-y-3 mt-6"></div>
-                <button id="save-budget-button" class="w-full sm:w-auto mt-6 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar Orçamento</button>
+                <button id="save-budget-button" class="w-full sm:w-auto mt-6 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar Orçamento</e>
             </div>
         </div>
 
@@ -398,7 +431,7 @@
         let expenses = [];
         let monthlyIncomes = {};
         let savings = [];
-        let budgets = {};
+        let budgets = { "default": {} }; // Inicializa com um orçamento padrão vazio
         let savingsGoals = [];
         
         // --- GRÁFICOS (instâncias) ---
@@ -428,7 +461,7 @@
         
         // --- FUNÇÕES DE DADOS (CARREGAR/SALVAR) ---
         function loadDefaultData() {
-            expenses = []; monthlyIncomes = {}; savings = []; budgets = {}; savingsGoals = [];
+            expenses = []; monthlyIncomes = {}; savings = []; budgets = { "default": {} }; savingsGoals = [];
         }
 
         async function saveDataToDrive() {
@@ -485,7 +518,7 @@
                     expenses = data.expenses || [];
                     monthlyIncomes = data.monthlyIncomes || {};
                     savings = data.savings || [];
-                    budgets = data.budgets || {};
+                    budgets = data.budgets || { "default": {} };
                     savingsGoals = data.savingsGoals || [];
                     authStatus.textContent = 'Dados carregados!';
                 } else {
@@ -593,12 +626,20 @@
         }
 
         // --- LÓGICA DE ORÇAMENTOS ---
-        function renderBudgetInputs(month) {
+        function renderBudgetInputs(monthKey) {
             const container = document.getElementById('budget-inputs-container');
             if (!container) return;
             container.innerHTML = '';
+            
+            // Se for modo 'range', não carrega valores, apenas mostra campos
+            if (monthKey === 'range') {
+                monthKey = 'default'; // Usa o default como template, mas não mostra valores
+            }
+            
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
-            const monthBudgets = budgets[month] || {};
+            // Tenta buscar o orçamento do mês, se não existir, usa o padrão
+            const monthBudgets = budgets[monthKey] || budgets["default"] || {};
+
             categories.forEach(category => {
                 const value = monthBudgets[category] || '';
                 const inputGroup = document.createElement('div');
@@ -615,22 +656,55 @@
         }
 
         function saveBudgets() {
-            const month = document.getElementById('budget-month').value;
-            if (!month) {
-                alert("Por favor, selecione um mês.");
-                return;
-            }
-            budgets[month] = budgets[month] || {};
+            const editMode = document.querySelector('input[name="budget-edit-mode"]:checked').value;
+            
+            // 1. Ler os valores dos inputs
+            const budgetValues = {};
             document.querySelectorAll('#budget-inputs-container input').forEach(input => {
                 const category = input.dataset.category;
                 const amount = parseFloat(input.value);
                 if (amount > 0) {
-                    budgets[month][category] = amount;
-                } else {
-                    delete budgets[month][category];
+                    budgetValues[category] = amount;
                 }
             });
-            alert(`Orçamento para ${formatMonthYear(month)} salvo com sucesso!`);
+
+            if (Object.keys(budgetValues).length === 0) {
+                alert("Nenhum valor de orçamento preenchido.");
+                return;
+            }
+
+            // 2. Aplicar com base no modo
+            if (editMode === 'default') {
+                budgets["default"] = budgetValues;
+                alert("Orçamento Padrão salvo com sucesso!");
+            } 
+            else if (editMode === 'single') {
+                const month = document.getElementById('budget-month').value;
+                if (!month) {
+                    alert("Por favor, selecione um mês.");
+                    return;
+                }
+                budgets[month] = budgetValues;
+                alert(`Orçamento para ${formatMonthYear(month)} salvo com sucesso!`);
+            } 
+            else if (editMode === 'range') {
+                const start = document.getElementById('budget-start-month').value;
+                const end = document.getElementById('budget-end-month').value;
+                if (!start || !end) {
+                    alert("Por favor, selecione um mês inicial e final.");
+                    return;
+                }
+                let currentDate = new Date(start + '-02');
+                const endDate = new Date(end + '-02');
+
+                while (currentDate <= endDate) {
+                    const monthKey = currentDate.toISOString().substring(0, 7);
+                    budgets[monthKey] = budgetValues;
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+                alert(`Orçamento aplicado de ${formatMonthYear(start)} até ${formatMonthYear(end)}!`);
+            }
+            
             updateAllUI();
         }
         
@@ -651,7 +725,7 @@
                 goalElement.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-semibold">${goal.name}</span>
-                        <button onclick="deleteGoal(${goal.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>
+                        <button onclick="deleteGoal(${goal.id})" class="text-red-600 hover:text-red-700 text-xs font-semibold">Excluir</button>
                     </div>
                     <div class="flex justify-between text-sm mb-1">
                         <span>Alcançado: ${formatCurrency(savedAmount)}</span>
@@ -679,10 +753,10 @@
         
         // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
         function updateAllUI() {
-            populateAllMonthFilters();
-            syncDespesasView(); // Atualiza a tabela de despesas
+            populateAllMonthFilters(); // Popula todos os seletores de mês
             
-            // Atualiza todos os dashboards individuais
+            // Atualiza Dashboards da Aba Despesas
+            syncDespesasView(); // Atualiza a tabela de despesas
             updateSummaryCards();
             updateCostTypeAnalysis();
             updatePaymentTypeCommitmentChart();
@@ -690,17 +764,17 @@
             updateMonthlyAnalysis();
             updateMonthlyComparisonChart();
 
-            // Atualiza a aba de Reservas
+            // Atualiza Aba de Reservas
             renderMonthlyIncomes();
-            updateSavingsDashboard();
-            applySavingsFiltersAndRender();
+            updateSavingsDashboard(); // Popula filtro de mês das reservas
+            applySavingsFiltersAndRender(); // Renderiza tabela de reservas
             updateGoalProgress();
 
-            // Atualiza a aba de Metas
+            // Atualiza Aba de Metas
             populateGoalsDropdown();
             renderGoalsList();
         }
-        
+
         // Sincroniza apenas a tabela, com base nos filtros principais
         function syncDespesasView() {
             const month = document.getElementById('filter-month').value;
@@ -724,7 +798,7 @@
 
         // Popula TODOS os filtros de mês
         function populateAllMonthFilters() {
-            const uniqueMonths = [...new Set(expenses.map(e => e.date.substring(0, 7)))].sort(); // Ordem crescente
+            const uniqueMonths = [...new Set(expenses.map(e => e.date.substring(0, 7)))].sort(); // Ordem Crescente
             
             const monthFilters = [
                 'filter-month',
@@ -743,11 +817,12 @@
                 select.innerHTML = '<option value="all">Todos os Meses</option>';
                 uniqueMonths.forEach(m => select.add(new Option(formatMonthYear(m), m)));
                 
-                // Mantém o valor selecionado, se ainda existir
                 if (uniqueMonths.includes(currentVal)) {
                     select.value = currentVal;
+                } else if (filterId === 'filter-month') {
+                    select.value = 'all'; // Filtro principal volta para "Todos"
                 } else {
-                    select.value = 'all';
+                    select.value = uniqueMonths[uniqueMonths.length - 1] || 'all'; // Outros pegam o mais recente
                 }
             });
         }
@@ -779,14 +854,14 @@
 
         function updateMonthlyAnalysis() {
             const month = document.getElementById('category-month-filter').value;
-            const chartCanvas = document.getElementById('monthly-category-chart');
-            const detailsContainer = document.getElementById('monthly-analysis-details');
-            if (monthlyCategoryChart) monthlyCategoryChart.destroy();
-            
             const filteredData = (month === 'all')
                 ? [...expenses]
                 : expenses.filter(e => e.date.startsWith(month));
 
+            const chartCanvas = document.getElementById('monthly-category-chart');
+            const detailsContainer = document.getElementById('monthly-analysis-details');
+            if (monthlyCategoryChart) monthlyCategoryChart.destroy();
+            
             if (filteredData.length === 0) {
                 detailsContainer.innerHTML = '';
                 chartCanvas.style.display = 'none';
@@ -799,7 +874,7 @@
             detailsContainer.innerHTML = detailsHtml + '</ul>';
             
             monthlyCategoryChart = new Chart(chartCanvas, {
-                type: 'pie', data: { labels: Object.keys(categoryData), datasets: [{ data: Object.values(categoryData), backgroundColor: ['#4f46e5', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'] }] },
+                type: 'pie', data: { labels: Object.keys(categoryData), datasets: [{ data: Object.values(categoryData), backgroundColor: ['#4f46e5', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6', '#64748b', '#06b6d4', '#f97316'] }] },
                 options: { responsive: true, plugins: { legend: { position: 'top' } } }
             });
         }
@@ -830,16 +905,20 @@
             
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
-            if (month === 'all' || !budgets[month] || Object.keys(budgets[month]).length === 0) {
+            
+            const monthKey = month === 'all' ? 'default' : month;
+            const budgetToDisplay = budgets[monthKey] || budgets["default"];
+
+            if (!budgetToDisplay || Object.keys(budgetToDisplay).length === 0) {
                 container.innerHTML = `<p class="text-sm text-gray-500">Crie um orçamento na aba 'Orçamentos' para ver o progresso.</p>`;
                 return;
             }
-            const monthBudgets = budgets[month];
+
             container.innerHTML = '';
             let contentRendered = false;
-            Object.keys(monthBudgets).sort().forEach(category => {
+            Object.keys(budgetToDisplay).sort().forEach(category => {
                 contentRendered = true;
-                const budgetAmount = monthBudgets[category];
+                const budgetAmount = budgetToDisplay[category];
                 const spentAmount = filteredData.filter(e => e.category === category).reduce((sum, e) => sum + e.amount, 0);
                 const percentage = budgetAmount > 0 ? Math.min((spentAmount / budgetAmount) * 100, 100) : 0;
                 let colorClass = 'budget';
@@ -1188,11 +1267,13 @@
         window.deleteIncome = (month) => { delete monthlyIncomes[month]; updateAllUI(); };
         window.deleteSaving = (id) => { savings = savings.filter(s => s.id !== id); updateAllUI(); };
         window.deleteGoal = (id) => {
-            savingsGoals = savingsGoals.filter(g => g.id !== id);
-            savings.forEach(s => {
-                if (s.goalId === id) { s.goalId = null; }
-            });
-            updateAllUI();
+            if (confirm("Tem certeza que deseja apagar esta meta? As poupanças associadas não serão apagadas, mas ficarão sem meta.")) {
+                savingsGoals = savingsGoals.filter(g => g.id !== id);
+                savings.forEach(s => {
+                    if (s.goalId === id) { s.goalId = null; }
+                });
+                updateAllUI();
+            }
         };
         
         // --- INICIALIZAÇÃO E LISTENERS ---
@@ -1213,6 +1294,7 @@
             const tabMetas = document.getElementById('tab-metas');
             const budgetMonthInput = document.getElementById('budget-month');
             const saveBudgetButton = document.getElementById('save-budget-button');
+            const budgetModeRadios = document.querySelectorAll('input[name="budget-edit-mode"]');
             
             // Listeners dos Filtros Principais (só para a tabela)
             const filters = [document.getElementById('filter-month'), document.getElementById('filter-category'), document.getElementById('filter-payment')];
@@ -1223,7 +1305,7 @@
             document.getElementById('cost-type-month-filter').addEventListener('change', updateCostTypeAnalysis);
             document.getElementById('payment-commit-month-filter').addEventListener('change', updatePaymentTypeCommitmentChart);
             document.getElementById('budget-progress-month-filter').addEventListener('change', updateBudgetProgress);
-            document.getElementById('category-month-filter').addEventListener('change', updateMonthlyAnalysis); // Renomeei 'month-select' para 'category-month-filter' no HTML
+            document.getElementById('category-month-filter').addEventListener('change', updateMonthlyAnalysis);
             
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
             savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
@@ -1273,12 +1355,38 @@
                             const month = (now.getMonth() + 1).toString().padStart(2, '0');
                             budgetMonthInput.value = `${year}-${month}`;
                         }
-                        renderBudgetInputs(budgetMonthInput.value);
+                        // Inicia no modo padrão
+                        renderBudgetInputs('default');
                     }
                     if (tab.button.id === 'tab-metas') { renderGoalsList(); }
                 });
             });
-
+            
+            // Listeners da página de Orçamentos
+            budgetModeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const mode = e.target.value;
+                    const datePickers = document.getElementById('budget-date-pickers');
+                    const singleMonth = document.getElementById('budget-single-month-container');
+                    const rangeMonth = document.getElementById('budget-range-container');
+                    
+                    datePickers.classList.remove('hidden');
+                    if (mode === 'default') {
+                        datePickers.classList.add('hidden');
+                        singleMonth.classList.add('hidden');
+                        rangeMonth.classList.add('hidden');
+                        renderBudgetInputs('default');
+                    } else if (mode === 'single') {
+                        singleMonth.classList.remove('hidden');
+                        rangeMonth.classList.add('hidden');
+                        renderBudgetInputs(document.getElementById('budget-month').value || 'default');
+                    } else if (mode === 'range') {
+                        singleMonth.classList.add('hidden');
+                        rangeMonth.classList.remove('hidden');
+                        renderBudgetInputs('range'); // 'range' vai limpar os campos
+                    }
+                });
+            });
             budgetMonthInput.addEventListener('change', () => { renderBudgetInputs(budgetMonthInput.value); });
             saveBudgetButton.addEventListener('click', saveBudgets);
 
@@ -1385,4 +1493,3 @@
     </script>
 </body>
 </html>
-
