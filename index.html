@@ -852,11 +852,13 @@
             return data;
         }
         
+        // Função Central de Atualização
         function updateAllUI() {
             populateAllMonthFilters(); // Popula todos os seletores de mês
             
             // Atualiza Dashboards da Aba Despesas
-            syncDespesasView(); // Atualiza a tabela de despesas e os gráficos sincronizados
+            syncDespesasView(); // Atualiza a tabela de despesas
+            updateDashboardCharts(); // Atualiza todos os gráficos
             
             // Atualiza a aba "Contas a Pagar"
             renderFutureEntriesTable();
@@ -872,11 +874,11 @@
             populateGoalsDropdown();
             renderGoalsList();
 
-            // Atualiza o gráfico de comparação geral
+            // Atualiza o gráfico de comparação geral (que não usa filtro)
             updateMonthlyComparisonChart();
         }
 
-        // Sincroniza os dashboards que dependem dos filtros principais
+        // Sincroniza apenas a tabela, com base nos filtros principais
         function syncDespesasView() {
             const month = document.getElementById('filter-month').value;
             const category = document.getElementById('filter-category').value;
@@ -886,7 +888,14 @@
             const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
 
             renderExpenseTable(tableShouldBeEmpty ? [] : filteredData);
-            updateSummaryCards(filteredData, month); // Atualiza Visão Geral
+        }
+
+        // Atualiza TODOS os cards do dashboard com base no filtro mestre
+        function updateDashboardCharts() {
+            const month = document.getElementById('dashboard-month-filter').value;
+            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
+
+            updateSummaryCards(filteredData, month); 
             updateCostTypeAnalysis(filteredData);
             updateMonthlyAnalysis(filteredData);
             updateBudgetProgress(filteredData, month);
@@ -904,11 +913,7 @@
             
             const monthFilters = [
                 'filter-month',
-                'visao-geral-month-filter',
-                'cost-type-month-filter',
-                'payment-commit-month-filter',
-                'budget-progress-month-filter',
-                'category-month-filter'
+                'dashboard-month-filter'
             ];
 
             const now = new Date();
@@ -943,10 +948,7 @@
             });
         }
         
-        function updateSummaryCards() {
-            const month = document.getElementById('filter-month').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-            
+        function updateSummaryCards(filteredData, month) {
             const relevantIncome = (month === 'all')
                 ? Object.values(monthlyIncomes).reduce((s, i) => s + i, 0)
                 : monthlyIncomes[month] || 0;
@@ -957,10 +959,7 @@
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
         }
 
-        function updateMonthlyAnalysis() {
-            const month = document.getElementById('filter-month').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-
+        function updateMonthlyAnalysis(filteredData) {
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
             if (monthlyCategoryChart) monthlyCategoryChart.destroy();
@@ -972,6 +971,8 @@
             }
             chartCanvas.style.display = 'block';
             const categoryData = filteredData.reduce((acc, {category, amount}) => ({...acc, [category]: (acc[category] || 0) + amount}), {});
+            
+            const month = document.getElementById('dashboard-month-filter').value;
             let detailsHtml = `<strong>Resumo de ${month === 'all' ? 'Todos os Meses' : formatMonthYear(month)}:</strong><ul class="list-disc ml-4 mt-2">`;
             Object.entries(categoryData).sort(([,a],[,b]) => b-a).forEach(([cat, amt]) => detailsHtml += `<li>${cat}: <strong>${formatCurrency(amt)}</strong></li>`);
             detailsContainer.innerHTML = detailsHtml + '</ul>';
@@ -982,10 +983,7 @@
             });
         }
         
-        function updateCostTypeAnalysis() {
-            const month = document.getElementById('filter-month').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-
+        function updateCostTypeAnalysis(filteredData) {
             if (costTypeChart) costTypeChart.destroy();
             const costData = filteredData.reduce((acc, {costType, amount}) => {
                 acc[costType] = (acc[costType] || 0) + amount;
@@ -998,10 +996,7 @@
             });
         }
 
-        function updateBudgetProgress() {
-            const month = document.getElementById('filter-month').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-            
+        function updateBudgetProgress(filteredData, month) {
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
             
@@ -1527,23 +1522,14 @@
             filters.forEach(el => el.addEventListener('change', syncDespesasView));
 
             // Listener do Filtro Mestre do Dashboard
-            document.getElementById('dashboard-month-filter').addEventListener('change', () => {
-                const month = document.getElementById('dashboard-month-filter').value;
-                const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-                
-                updateSummaryCards(filteredData, month);
-                updateCostTypeAnalysis(filteredData);
-                updateMonthlyAnalysis(filteredData);
-                updateBudgetProgress(filteredData, month);
-                updatePaymentTypeCommitmentChart(filteredData, month);
-                updateBillByBankChart(filteredData);
-            });
+            document.getElementById('dashboard-month-filter').addEventListener('change', updateDashboardCharts);
             
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
             savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
 
             // Setup Inicial
             const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.getElementById('date').valueAsDate = new Date();
             applyTheme(savedTheme); // Isso vai chamar updateChartTheme() e updateAllUI()
             updateSigninStatus(false);
             
@@ -1745,7 +1731,7 @@
                             if (scope === 'future' && new Date(entry.date) >= sourceDate) shouldUpdate = true;
                         }
                         return shouldUpdate;
-                    };
+Two};
 
                     expenses.forEach((expense, index) => {
                         if (updateLogic(expense)) {
