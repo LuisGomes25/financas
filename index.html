@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilha de Finanças Pessoais</title>
+    <title>Planilha de Finanças Pessoais com IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
         h1, .text-gray-800, .text-gray-900 { color: #111827 !important; }
         h2, h3, .text-gray-700 { color: #1f2937 !important; }
         p, label, .text-gray-600, .text-gray-500 { color: #4b5563 !important; }
-        #auth-status { color: #6b7280 !important; }
+        #auth-status, #last-save-status { color: #6b7280 !important; }
         input, select { background-color: #f9fafb !important; border-color: #d1d5db !important; color: #111827 !important; color-scheme: light; }
         input::placeholder { color: #9ca3af; }
         .table-header { background-color: #f9fafb; }
@@ -32,7 +32,7 @@
         body.dark h1, body.dark .text-gray-800, body.dark .text-gray-900 { color: #f9fafb !important; }
         body.dark h2, body.dark h3, body.dark .text-gray-700 { color: #e5e7eb !important; }
         body.dark p, body.dark label, body.dark .text-gray-600, body.dark .text-gray-500 { color: #d1d5db !important; }
-        body.dark #auth-status { color: #9ca3af !important; }
+        body.dark #auth-status, body.dark #last-save-status { color: #9ca3af !important; }
         body.dark input, body.dark select { background-color: #374151 !important; border-color: #4b5563 !important; color: #f9fafb !important; color-scheme: dark; }
         body.dark input::placeholder { color: #9ca3af; }
         body.dark .table-header { background-color: #374151; }
@@ -62,7 +62,6 @@
         .progress-fill.budget.red { background-color: #ef4444; }
         .progress-fill.goal { background-color: #10b981; }
 
-
         /* Estilos Responsivos */
         @media (max-width: 767px) {
             .responsive-table thead { display: none; }
@@ -83,9 +82,11 @@
         <header class="mb-4 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Minhas Finanças</h1>
+                <p class="text-gray-500 mt-1">Sua planilha e dashboard financeiro com salvamento no Google Drive.</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
                  <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
+                 <div id="last-save-status" class="text-sm text-gray-500 text-right"></div>
                  <button id="theme-toggle-button" class="p-2 rounded-md">
                      <svg id="theme-icon-sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                      <svg id="theme-icon-moon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -154,6 +155,11 @@
                             </div>
                             <div><label for="amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="amount" class="mt-1 block w-full rounded-md shadow-sm" placeholder="150,50" required></div>
                             
+                            <div id="bill-month-container" class="hidden">
+                                <label for="bill-month" class="block text-sm font-medium">Mês da Fatura</label>
+                                <input type="month" id="bill-month" class="mt-1 block w-full rounded-md shadow-sm">
+                            </div>
+                            
                             <div class="sm:col-span-2 md:col-span-4 space-y-3 mt-2">
                                 <div class="flex items-center space-x-2">
                                     <input type="checkbox" id="is-future-entry" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
@@ -179,7 +185,7 @@
                             <button onclick="exportToCsv('expenses')" class="py-1 px-3 border rounded-md shadow-sm text-sm font-medium export-button">Exportar CSV</button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                            <div><label for="filter-month" class="block text-sm font-medium">Filtrar por Mês</label><select id="filter-month" class="mt-1 block w-full rounded-md shadow-sm"></select></div>
+                            <div><label for="filter-month" class="block text-sm font-medium">Filtrar por Mês (Orçamentário)</label><select id="filter-month" class="mt-1 block w-full rounded-md shadow-sm"></select></div>
                             <div>
                                 <label for="filter-category" class="block text-sm font-medium">Filtrar por Categoria</label>
                                 <select id="filter-category" class="mt-1 block w-full rounded-md shadow-sm">
@@ -207,7 +213,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="overflow-x-auto"><table class="min-w-full responsive-table"><thead class="table-header"><tr><th class="px-6 py-3 text-left text-xs font-medium uppercase">Data</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Descrição</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Categoria</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Tipo</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Valor</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Ações</th></tr></thead><tbody id="expense-table-body"></tbody></table></div>
+                        <div class="overflow-x-auto"><table class="min-w-full responsive-table"><thead class="table-header"><tr><th class="px-6 py-3 text-left text-xs font-medium uppercase">Data</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Descrição</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Categoria</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Pagamento</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Valor</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Ações</th></tr></thead><tbody id="expense-table-body"></tbody></table></div>
                     </div>
                 </div>
     
@@ -219,42 +225,21 @@
                             <p class="text-sm text-gray-500">Nenhuma conta a pagar registada para breve.</p>
                         </div>
                     </div>
+                    <div class="card"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div></div>
+                    <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
                     <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3>
-                            <select id="visao-geral-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div>
-                    </div>
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3>
-                            <select id="cost-type-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
-                        </div>
-                        <canvas id="cost-type-chart" class="mt-4"></canvas>
-                    </div>
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Renda por Pagamento</h3>
-                            <select id="payment-commit-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
-                        </div>
+                        <h3 class="text-lg font-semibold text-gray-700">Renda Comprometida por Pagamento</h3>
                         <canvas id="payment-commitment-chart" class="mt-4"></canvas>
                     </div>
                     <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Progresso do Orçamento</h3>
-                            <select id="budget-progress-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
-                        </div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Progresso do Orçamento</h3>
                         <div id="budget-progress-container" class="space-y-4"></div>
                     </div>
                     <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                             <h3 class="text-lg font-semibold text-gray-700">Gastos por Categoria</h3>
-                             <select id="category-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
-                        </div>
-                        <canvas id="monthly-category-chart" class="mt-4"></canvas>
-                        <div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div>
+                         <h3 class="text-lg font-semibold text-gray-700">Faturas de Crédito por Banco</h3>
+                        <canvas id="bill-by-bank-chart" class="mt-4"></canvas>
                     </div>
+                    <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria</h3><canvas id="monthly-category-chart" class="mt-4"></canvas><div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div></div>
                     <div class="card">
                         <h3 class="text-lg font-semibold text-gray-700">Comparação de Gastos Mensais</h3>
                         <canvas id="monthly-comparison-chart" class="mt-4"></canvas>
@@ -410,7 +395,8 @@
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Editar Lançamento</h2>
             <form id="edit-expense-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input type="hidden" id="edit-expense-id">
-                <input type="hidden" id="edit-is-future"> <div><label for="edit-date" class="block text-sm font-medium">Data</label><input type="date" id="edit-date" class="mt-1 block w-full rounded-md shadow-sm" required></div>
+                <input type="hidden" id="edit-is-future">
+                <div><label for="edit-date" class="block text-sm font-medium">Data</label><input type="date" id="edit-date" class="mt-1 block w-full rounded-md shadow-sm" required></div>
                 <div><label for="edit-cost-type" class="block text-sm font-medium">Tipo</label><select id="edit-cost-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Variável</option><option>Fixo</option></select></div>
                 <div>
                     <label for="edit-category" class="block text-sm font-medium">Categoria</label>
@@ -452,6 +438,11 @@
                     </select>
                 </div>
                 <div><label for="edit-amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="edit-amount" class="mt-1 block w-full rounded-md shadow-sm" required></div>
+                <div id="edit-bill-month-container" class="hidden">
+                    <label for="edit-bill-month" class="block text-sm font-medium">Mês da Fatura</label>
+                    <input type="month" id="edit-bill-month" class="mt-1 block w-full rounded-md shadow-sm">
+                </div>
+
                 <div id="edit-recurring-options" class="sm:col-span-2 hidden">
                     <label for="edit-recurrence-scope" class="block text-sm font-medium">Aplicar alteração a:</label>
                     <select id="edit-recurrence-scope" class="mt-1 block w-full rounded-md shadow-sm">
@@ -471,14 +462,14 @@
     <script>
         // --- DADOS GLOBAIS ---
         let expenses = [];
-        let futureEntries = []; // NOVO: Para Contas a Pagar
+        let futureEntries = [];
         let monthlyIncomes = {};
         let savings = [];
         let budgets = { "default": {} };
         let savingsGoals = [];
         
         // --- GRÁFICOS (instâncias) ---
-        let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart;
+        let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart, billByBankChart;
         
         // --- CONFIGURAÇÃO GOOGLE API ---
         const CLIENT_ID = '164577357008-o68h1qr3h69ik5ot1531f1fvvrl40umr.apps.googleusercontent.com';
@@ -501,15 +492,16 @@
             const formatted = date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
             return formatted.charAt(0).toUpperCase() + formatted.slice(1);
         };
+        const formatTimestamp = (isoString) => {
+            if (!isoString) return 'Nunca salvo.';
+            const date = new Date(isoString);
+            return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        };
         
         // --- FUNÇÕES DE DADOS (CARREGAR/SALVAR) ---
         function loadDefaultData() {
-            expenses = []; 
-            futureEntries = []; 
-            monthlyIncomes = {}; 
-            savings = []; 
-            budgets = { "default": {} }; 
-            savingsGoals = [];
+            expenses = []; futureEntries = []; monthlyIncomes = {}; savings = []; budgets = { "default": {} }; savingsGoals = [];
+            document.getElementById('last-save-status').textContent = 'Nunca salvo.';
         }
 
         async function saveDataToDrive() {
@@ -541,16 +533,18 @@
                 const result = await response.json();
                 driveFileId = result.id; 
                 saveDataButton.textContent = 'Salvo!';
+                document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(allData.lastUpdated)}`;
             } catch (err) {
                 console.error("Erro ao salvar no Drive", err);
                 saveDataButton.textContent = 'Erro ao Salvar';
             } finally {
                 setTimeout(() => {
                     const currentSaveButton = document.getElementById('save-data-button');
-                    if(currentSaveButton && !currentSaveButton.disabled){
+                    if(currentSaveButton){
+                       currentSaveButton.disabled = false;
                        currentSaveButton.textContent = 'Salvar';
                     }
-                }, 3000);
+                }, 2000);
             }
         }
         
@@ -570,6 +564,7 @@
                     budgets = data.budgets || { "default": {} };
                     savingsGoals = data.savingsGoals || [];
                     authStatus.textContent = 'Dados carregados!';
+                    document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(data.lastUpdated)}`;
                 } else {
                     driveFileId = null; 
                     loadDefaultData();
@@ -660,7 +655,7 @@
             if (!entry) return;
 
             document.getElementById('edit-expense-id').value = entry.id;
-            document.getElementById('edit-is-future').value = isFuture; // Informa ao form de onde veio
+            document.getElementById('edit-is-future').value = isFuture; 
             document.getElementById('edit-date').value = entry.date;
             document.getElementById('edit-cost-type').value = entry.costType;
             document.getElementById('edit-category').value = entry.category;
@@ -668,6 +663,17 @@
             document.getElementById('edit-description').value = entry.description;
             document.getElementById('edit-bank').value = entry.bank;
             document.getElementById('edit-amount').value = entry.amount;
+
+            // Lógica do Mês da Fatura
+            const billMonthContainer = document.getElementById('edit-bill-month-container');
+            const billMonthInput = document.getElementById('edit-bill-month');
+            if (entry.type === 'Crédito') {
+                billMonthInput.value = entry.billMonth || '';
+                billMonthContainer.classList.remove('hidden');
+            } else {
+                billMonthInput.value = '';
+                billMonthContainer.classList.add('hidden');
+            }
 
             const recurringOptions = document.getElementById('edit-recurring-options');
             if (entry.recurrenceId) {
@@ -693,7 +699,7 @@
 
             categories.forEach(category => {
                 const value = (monthKey === 'range') ? '' : (monthBudgets[category] || '');
-                const placeholder = (monthKey === 'range') ? 'Manter' : (budgets["default"][category] || '0,00');
+                const placeholder = (budgets["default"][category] || '0,00');
 
                 const inputGroup = document.createElement('div');
                 inputGroup.className = 'grid grid-cols-3 gap-4 items-center';
@@ -711,7 +717,6 @@
         function saveBudgets() {
             const editMode = document.querySelector('input[name="budget-edit-mode"]:checked').value;
             
-            // 1. Ler os valores dos inputs
             const budgetValues = {};
             let hasValues = false;
             document.querySelectorAll('#budget-inputs-container input').forEach(input => {
@@ -729,7 +734,6 @@
                 if (!confirm("Nenhum valor preenchido. Deseja limpar este orçamento?")) return;
             }
 
-            // 2. Aplicar com base no modo
             if (editMode === 'default') {
                 budgets["default"] = budgetValues;
                 alert("Orçamento Padrão salvo com sucesso!");
@@ -808,18 +812,42 @@
         }
         
         // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
+        
+        // Esta é a nova função principal que calcula os dados filtrados
+        function getExpensesForBudgetMonth(month, category, payment) {
+            let data = [];
+            
+            // 1. Define a base de dados (Mês)
+            if (month === 'all') {
+                data = [...expenses];
+            } else {
+                const nonCredit = expenses.filter(e => e.type !== 'Crédito' && e.date.startsWith(month));
+                const credit = expenses.filter(e => e.type === 'Crédito' && e.billMonth === month);
+                data = [...nonCredit, ...credit];
+            }
+
+            // 2. Filtra por Categoria
+            if (category !== 'all') {
+                data = data.filter(e => e.category === category);
+            }
+            
+            // 3. Filtra por Pagamento
+            if (payment !== 'all') {
+                data = data.filter(e => e.type === payment);
+            }
+            
+            return data;
+        }
+
         function updateAllUI() {
             populateAllMonthFilters(); // Popula todos os seletores de mês
             
             // Atualiza Dashboards da Aba Despesas
-            syncDespesasView(); // Atualiza a tabela de despesas
-            updateSummaryCards();
-            updateCostTypeAnalysis();
-            updatePaymentTypeCommitmentChart();
-            updateBudgetProgress();
-            updateMonthlyAnalysis();
-            updateMonthlyComparisonChart();
-
+            syncDespesasView(); // Atualiza a tabela de despesas e os gráficos sincronizados
+            
+            // Atualiza Dashboards Individuais
+            updateSummaryCards(); // O card "Visão Geral" agora tem seu próprio filtro
+            
             // Atualiza a aba "Contas a Pagar"
             renderFutureEntriesTable();
             updateUpcomingBills();
@@ -833,32 +861,34 @@
             // Atualiza a aba de Metas
             populateGoalsDropdown();
             renderGoalsList();
+
+            // Atualiza o gráfico de comparação geral
+            updateMonthlyComparisonChart();
         }
 
-        // Sincroniza apenas a tabela, com base nos filtros principais
+        // Sincroniza os dashboards que dependem dos filtros principais
         function syncDespesasView() {
             const month = document.getElementById('filter-month').value;
             const category = document.getElementById('filter-category').value;
             const payment = document.getElementById('filter-payment').value;
             
-            let filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
-
-            if (category !== 'all') {
-                filteredData = filteredData.filter(e => e.category === category);
-            }
-            if (payment !== 'all') {
-                filteredData = filteredData.filter(e => e.type === payment);
-            }
-
+            const filteredData = getExpensesForBudgetMonth(month, category, payment);
             const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
+
             renderExpenseTable(tableShouldBeEmpty ? [] : filteredData);
+            updateCostTypeAnalysis(filteredData);
+            updateMonthlyAnalysis(filteredData);
+            updateBudgetProgress(filteredData, month);
+            updatePaymentTypeCommitmentChart(filteredData, month);
+            updateBillByBankChart(filteredData);
         }
 
         // Popula TODOS os filtros de mês
         function populateAllMonthFilters() {
-            const allMonths = [...expenses.map(e => e.date.substring(0, 7)), ...futureEntries.map(e => e.date.substring(0, 7))];
+            const allExpenseMonths = expenses.map(e => e.type === 'Crédito' ? e.billMonth : e.date.substring(0, 7));
+            const allFutureMonths = futureEntries.map(e => e.type === 'Crédito' ? e.billMonth : e.date.substring(0, 7));
+            const allMonths = [...allExpenseMonths, ...allFutureMonths].filter(m => m); // Remove nulos
+            
             const uniqueMonths = [...new Set(allMonths)].sort(); // Ordem Crescente
             
             const monthFilters = [
@@ -869,6 +899,9 @@
                 'budget-progress-month-filter',
                 'category-month-filter'
             ];
+
+            const now = new Date();
+            const currentMonthKey = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
 
             monthFilters.forEach(filterId => {
                 const select = document.getElementById(filterId);
@@ -881,11 +914,8 @@
                 if (uniqueMonths.includes(currentVal)) {
                     select.value = currentVal;
                 } else if (filterId === 'filter-month') {
-                    select.value = 'all'; // Filtro principal volta para "Todos"
+                    select.value = 'all';
                 } else {
-                    // Outros pegam o mês atual ou o mais recente
-                    const now = new Date();
-                    const currentMonthKey = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
                     select.value = uniqueMonths.includes(currentMonthKey) ? currentMonthKey : (uniqueMonths[uniqueMonths.length - 1] || 'all');
                 }
             });
@@ -904,13 +934,13 @@
         
         function updateSummaryCards() {
             const month = document.getElementById('visao-geral-month-filter').value;
-            const filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
+            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
+            
             const relevantIncome = (month === 'all')
                 ? Object.values(monthlyIncomes).reduce((s, i) => s + i, 0)
                 : monthlyIncomes[month] || 0;
             const total = filteredData.reduce((s, e) => s + e.amount, 0);
+
             document.getElementById('total-expenses').textContent = formatCurrency(total);
             document.getElementById('income-percentage').textContent = `${(relevantIncome > 0 ? (total / relevantIncome) * 100 : 0).toFixed(1)}%`;
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
@@ -918,9 +948,7 @@
 
         function updateMonthlyAnalysis() {
             const month = document.getElementById('category-month-filter').value;
-            const filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
+            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
 
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
@@ -945,9 +973,7 @@
         
         function updateCostTypeAnalysis() {
             const month = document.getElementById('cost-type-month-filter').value;
-            const filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
+            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
 
             if (costTypeChart) costTypeChart.destroy();
             const costData = filteredData.reduce((acc, {costType, amount}) => {
@@ -963,9 +989,7 @@
 
         function updateBudgetProgress() {
             const month = document.getElementById('budget-progress-month-filter').value;
-            const filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
+            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
             
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
@@ -1001,7 +1025,7 @@
                 container.appendChild(progressElement);
             });
             if (!contentRendered) {
-                 container.innerHTML = `<p class="text-sm text-gray-500">Nenhum orçamento definido para ${formatMonthYear(month)}.</p>`;
+                 container.innerHTML = `<p class="text-sm text-gray-500">Nenhum orçamento definido para ${month === 'all' ? 'o modo Padrão' : formatMonthYear(month)}.</p>`;
             }
         }
         
@@ -1092,7 +1116,7 @@
                     <td data-label="Data">${formatDate(expense.date)}</td>
                     <td data-label="Descrição">${expense.description}</td>
                     <td data-label="Categoria">${expense.category}</td>
-                    <td data-label="Tipo">${expense.costType}</td>
+                    <td data-label="Pagamento">${expense.type}</td>
                     <td data-label="Valor" class="text-red-500 font-medium">${formatCurrency(expense.amount)}</td>
                     <td data-label="Ações" class="actions-cell">
                         <button onclick="openEditModal(${expense.id}, false)" class="text-blue-600 hover:text-blue-900">Editar</button>
@@ -1102,7 +1126,7 @@
                 expenseTableBody.appendChild(row);
             });
         }
-        
+
         function renderFutureEntriesTable() {
             const tableBody = document.getElementById('future-entries-table-body');
             if (!tableBody) return;
@@ -1151,7 +1175,7 @@
                 container.appendChild(div);
             });
         }
-
+        
         function updateGoalProgress() {
             const container = document.getElementById('goal-progress-container');
             if (!container) return;
@@ -1290,12 +1314,7 @@
             });
         }
 
-        function updatePaymentTypeCommitmentChart() {
-            const month = document.getElementById('payment-commit-month-filter').value;
-            const filteredData = (month === 'all')
-                ? [...expenses]
-                : expenses.filter(e => e.date.startsWith(month));
-
+        function updatePaymentTypeCommitmentChart(filteredData, month) {
             if (paymentCommitmentChart) paymentCommitmentChart.destroy();
             const container = document.getElementById('payment-commitment-chart');
             if(!container) return;
@@ -1330,6 +1349,41 @@
             });
         }
         
+        function updateBillByBankChart(filteredData) {
+            if (billByBankChart) billByBankChart.destroy();
+            
+            const creditExpenses = filteredData.filter(e => e.type === 'Crédito');
+            const container = document.getElementById('bill-by-bank-chart');
+            if (!container) return;
+
+            if (creditExpenses.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            const bankData = creditExpenses.reduce((acc, {bank, amount}) => {
+                acc[bank] = (acc[bank] || 0) + amount;
+                return acc;
+            }, {});
+
+            billByBankChart = new Chart(container.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(bankData),
+                    datasets: [{ 
+                        label: 'Valor da Fatura', 
+                        data: Object.values(bankData),
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#ec4899', '#64748b']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
         // --- FUNÇÃO GEMINI API ---
         async function callGeminiAPI() {
             const geminiButton = document.getElementById('gemini-button');
@@ -1391,9 +1445,9 @@
         window.payEntry = (id) => {
             const index = futureEntries.findIndex(e => e.id === id);
             if (index === -1) return;
-            const [entry] = futureEntries.splice(index, 1); // Remove da lista de futuros
-            entry.date = new Date().toISOString().split('T')[0]; // Opcional: atualiza a data para o dia do pagamento
-            expenses.push(entry); // Adiciona ao histórico de gastos
+            const [entry] = futureEntries.splice(index, 1);
+            entry.date = new Date().toISOString().split('T')[0]; // Atualiza a data para o dia do pagamento
+            expenses.push(entry); 
             updateAllUI();
         };
 
@@ -1409,6 +1463,28 @@
             }
         };
         
+        // --- LÓGICA DE VISIBILIDADE DE CAMPOS ---
+        function toggleBillMonthField(formType) {
+            const prefix = formType === 'edit' ? 'edit-' : '';
+            const paymentType = document.getElementById(`${prefix}payment-type`).value;
+            const container = document.getElementById(`${prefix}bill-month-container`);
+            const input = document.getElementById(`${prefix}bill-month`);
+            
+            if (paymentType === 'Crédito') {
+                container.classList.remove('hidden');
+                input.required = true;
+                if(!input.value) { // Sugere o próximo mês
+                    const now = new Date();
+                    now.setMonth(now.getMonth() + 1);
+                    input.value = now.toISOString().substring(0, 7);
+                }
+            } else {
+                container.classList.add('hidden');
+                input.required = false;
+                input.value = '';
+            }
+        }
+
         // --- INICIALIZAÇÃO E LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
             const expenseForm = document.getElementById('expense-form');
@@ -1435,18 +1511,31 @@
             filters.forEach(el => el.addEventListener('change', syncDespesasView));
 
             // Listeners dos Filtros de Dashboard
-            document.getElementById('visao-geral-month-filter').addEventListener('change', updateSummaryCards);
-            document.getElementById('cost-type-month-filter').addEventListener('change', updateCostTypeAnalysis);
-            document.getElementById('payment-commit-month-filter').addEventListener('change', updatePaymentTypeCommitmentChart);
-            document.getElementById('budget-progress-month-filter').addEventListener('change', updateBudgetProgress);
-            document.getElementById('category-month-filter').addEventListener('change', updateMonthlyAnalysis);
+            const dashboardFilters = [
+                'visao-geral-month-filter', 'cost-type-month-filter', 'payment-commit-month-filter',
+                'budget-progress-month-filter', 'category-month-filter'
+            ];
+            dashboardFilters.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    let func;
+                    switch (id) {
+                        case 'visao-geral-month-filter': func = updateSummaryCards; break;
+                        case 'cost-type-month-filter': func = updateCostTypeAnalysis; break;
+                        case 'payment-commit-month-filter': func = updatePaymentTypeCommitmentChart; break;
+                        case 'budget-progress-month-filter': func = updateBudgetProgress; break;
+                        case 'category-month-filter': func = updateMonthlyAnalysis; break;
+                    }
+                    el.addEventListener('change', func);
+                }
+            });
             
             const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
             savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
 
             // Setup Inicial
             const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
+            applyTheme(savedTheme); // Isso vai chamar updateChartTheme() e updateAllUI()
             updateSigninStatus(false);
             
             authButton.addEventListener('click', () => {
@@ -1482,6 +1571,7 @@
                     });
                     tab.button.classList.add('active');
                     tab.view.classList.remove('hidden');
+                    // Lógica específica ao abrir cada aba
                     if (tab.button.id === 'tab-reservas') { populateGoalsDropdown(); }
                     if (tab.button.id === 'tab-orcamentos') {
                         document.getElementById('budget-mode-default').checked = true;
@@ -1545,11 +1635,24 @@
                 e.preventDefault();
                 const isRecurring = document.getElementById('is-recurring').checked;
                 const isFuture = document.getElementById('is-future-entry').checked;
+                const paymentType = document.getElementById('payment-type').value;
+                const billMonth = document.getElementById('bill-month').value;
+                
+                if (paymentType === 'Crédito' && !billMonth) {
+                    alert('Por favor, selecione o mês da fatura para gastos com Cartão de Crédito.');
+                    return;
+                }
+
                 const recurrenceId = isRecurring ? Date.now() : null;
                 const baseExpense = {
-                    costType: document.getElementById('cost-type').value, type: document.getElementById('payment-type').value,
-                    description: document.getElementById('description').value, amount: parseFloat(document.getElementById('amount').value),
-                    category: document.getElementById('category').value, bank: document.getElementById('bank').value, recurrenceId: recurrenceId
+                    costType: document.getElementById('cost-type').value, 
+                    type: paymentType,
+                    description: document.getElementById('description').value, 
+                    amount: parseFloat(document.getElementById('amount').value),
+                    category: document.getElementById('category').value, 
+                    bank: document.getElementById('bank').value, 
+                    recurrenceId: recurrenceId,
+                    billMonth: paymentType === 'Crédito' ? billMonth : null
                 };
                 
                 const destinationArray = isFuture ? futureEntries : expenses;
@@ -1572,6 +1675,7 @@
                 document.getElementById('is-recurring').checked = false;
                 document.getElementById('is-future-entry').checked = false;
                 document.getElementById('recurring-options').classList.add('hidden');
+                toggleBillMonthField('form');
             });
 
             incomeForm.addEventListener('submit', e => { 
@@ -1601,12 +1705,20 @@
                 const isFuture = document.getElementById('edit-is-future').value === 'true';
                 const sourceArray = isFuture ? futureEntries : expenses;
                 const scope = document.getElementById('edit-recurrence-scope').value;
+                const paymentType = document.getElementById('edit-payment-type').value;
+                const billMonth = document.getElementById('edit-bill-month').value;
+
+                if (paymentType === 'Crédito' && !billMonth) {
+                    alert('Por favor, selecione o mês da fatura para gastos com Cartão de Crédito.');
+                    return;
+                }
 
                 const updatedData = {
                     date: document.getElementById('edit-date').value, costType: document.getElementById('edit-cost-type').value,
-                    category: document.getElementById('edit-category').value, type: document.getElementById('edit-payment-type').value,
+                    category: document.getElementById('edit-category').value, type: paymentType,
                     description: document.getElementById('edit-description').value, bank: document.getElementById('edit-bank').value,
-                    amount: parseFloat(document.getElementById('edit-amount').value)
+                    amount: parseFloat(document.getElementById('edit-amount').value),
+                    billMonth: paymentType === 'Crédito' ? billMonth : null
                 };
                 const originalEntry = sourceArray.find(e => e.id === id);
                 if (scope === 'single' || !originalEntry.recurrenceId) {
@@ -1625,7 +1737,6 @@
                         return shouldUpdate;
                     };
 
-                    // Atualiza em ambos os arrays
                     expenses.forEach((expense, index) => {
                         if (updateLogic(expense)) {
                             expenses[index] = { ...expense, ...updatedData, date: expense.date, id: expense.id, recurrenceId: expense.recurrenceId };
@@ -1640,6 +1751,10 @@
                 document.getElementById('edit-modal').classList.remove('visible');
                 updateAllUI();
             });
+
+            // Listeners para mostrar/esconder o campo de Mês da Fatura
+            document.getElementById('payment-type').addEventListener('change', () => toggleBillMonthField('form'));
+            document.getElementById('edit-payment-type').addEventListener('change', () => toggleBillMonthField('edit'));
 
             cancelEditButton.addEventListener('click', () => document.getElementById('edit-modal').classList.remove('visible'));
             themeToggleButton.addEventListener('click', toggleTheme);
