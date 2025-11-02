@@ -39,7 +39,6 @@
         body.dark .responsive-table tbody, body.dark .responsive-table, body.dark .divide-y { border-color: #374151 !important; }
         body.dark #google-auth-button, body.dark .export-button { background-color: #374151; border-color: #4b5563; color: #f9fafb; }
         body.dark #google-auth-button:hover, body.dark .export-button:hover { background-color: #4b5563; }
-        body.dark #monthly-incomes-list .bg-gray-50 { background-color: #374151 !important; }
         #gemini-button:disabled, #save-data-button:disabled { cursor: not-allowed; opacity: 0.7; }
 
         /* Estilos do Modal de Edição */
@@ -636,10 +635,9 @@
                     expenses = data.expenses || [];
                     futureEntries = data.futureEntries || [];
                     
-                    // Migração de dados de Renda
                     if (data.incomes) {
                         incomes = data.incomes;
-                    } else if (data.monthlyIncomes) { // Se achar o formato antigo
+                    } else if (data.monthlyIncomes) { // Migração de dados de Renda
                         incomes = Object.entries(data.monthlyIncomes).map(([month, amount], index) => ({
                             id: Date.now() + index,
                             month: month,
@@ -781,10 +779,10 @@
             container.innerHTML = '';
             
             const isRangeMode = (monthKey === 'range');
-            const budgetKey = isRangeMode ? 'default' : monthKey;
+            const budgetKeyToShow = isRangeMode ? 'default' : monthKey;
             
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
-            const monthBudgets = budgets[budgetKey] || budgets["default"] || {};
+            const monthBudgets = budgets[budgetKeyToShow] || budgets["default"] || {};
             const defaultBudgets = budgets["default"] || {};
 
             categories.forEach(category => {
@@ -944,8 +942,8 @@
             renderFutureEntriesTable();
             updateUpcomingBills();
 
-            // Atualiza a aba de Reservas e Renda
-            renderMonthlyIncomes();
+            // Atualiza a aba de Renda e Reservas
+            renderIncomesTable();
             updateIncomeDashboard();
             updateSavingsDashboard();
             applySavingsFiltersAndRender();
@@ -1030,19 +1028,9 @@
         }
 
         function renderMonthlyIncomes() {
-             const listEl = document.getElementById('monthly-incomes-list');
-             if (listEl) { // Verifica se o elemento existe (está na aba Despesas)
-                listEl.innerHTML = '';
-                Object.keys(monthlyIncomes).sort().reverse().forEach(month => {
-                    const div = document.createElement('div');
-                    div.className = 'flex justify-between items-center bg-gray-50 p-2 rounded';
-                    div.innerHTML = `<span>${formatMonthYear(month)}: <strong>${formatCurrency(monthlyIncomes[month])}</strong></span> <button onclick="deleteIncome('${month}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>`;
-                    listEl.appendChild(div);
-                });
-             }
+             // Esta função foi substituída por renderIncomesTable e updateIncomeDashboard
         }
-
-        // Nova função para a tabela de Rendas
+        
         function renderIncomesTable() {
             const tableBody = document.getElementById('incomes-table-body');
             if (!tableBody) return;
@@ -1064,11 +1052,13 @@
                 tableBody.appendChild(row);
             });
         }
-
-        // Nova função para o dashboard de Rendas
+        
         function updateIncomeDashboard() {
             const total = incomes.reduce((sum, i) => sum + i.amount, 0);
-            document.getElementById('total-income').textContent = formatCurrency(total);
+            const totalEl = document.getElementById('total-income');
+            if (totalEl) {
+                totalEl.textContent = formatCurrency(total);
+            }
 
             if (monthlyIncomeChart) monthlyIncomeChart.destroy();
             
@@ -1079,21 +1069,25 @@
             }, {});
             const sortedMonths = Object.keys(monthlyData).sort();
 
-            monthlyIncomeChart = new Chart(document.getElementById('monthly-income-chart'), {
-                type: 'bar',
-                data: { 
-                    labels: sortedMonths.map(formatMonthYear), 
-                    datasets: [{ 
-                        label: 'Renda Recebida', 
-                        data: sortedMonths.map(m => monthlyData[m]), 
-                        backgroundColor: '#10b981' 
-                    }] 
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-            });
+            const incomeChartEl = document.getElementById('monthly-income-chart');
+            if (incomeChartEl) {
+                monthlyIncomeChart = new Chart(incomeChartEl, {
+                    type: 'bar',
+                    data: { 
+                        labels: sortedMonths.map(formatMonthYear), 
+                        datasets: [{ 
+                            label: 'Renda Recebida', 
+                            data: sortedMonths.map(m => monthlyData[m]), 
+                            backgroundColor: '#10b981' 
+                        }] 
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+                });
+            }
         }
-        
+
         function updateSummaryCards(filteredData, month) {
+            // Calcula a renda relevante para o mês (ou todos)
             const relevantIncome = (month === 'all')
                 ? incomes.reduce((sum, income) => sum + income.amount, 0)
                 : incomes.filter(i => i.month === month).reduce((sum, i) => sum + i.amount, 0);
@@ -1546,7 +1540,7 @@
         // --- FUNÇÃO GEMINI API ---
         async function callGeminiAPI() {
             const geminiButton = document.getElementById('gemini-button');
-            if (expenses.length === 0 && futureEntries.length === 0 && Object.keys(monthlyIncomes).length === 0 && savings.length === 0) {
+            if (expenses.length === 0 && futureEntries.length === 0 && incomes.length === 0 && savings.length === 0) {
                 document.getElementById('analysis-text').innerHTML = '<p>Por favor, adicione alguns dados antes de pedir uma análise.</p>';
                 return;
             }
@@ -1834,16 +1828,25 @@
                 toggleBillMonthField('form');
             });
 
+            // CORREÇÃO: Listener do formulário de Renda
             incomeForm.addEventListener('submit', e => { 
                 e.preventDefault(); 
                 const month = document.getElementById('income-month').value;
                 const description = document.getElementById('income-description').value;
                 const amount = parseFloat(document.getElementById('income-amount').value); 
+
                 if(month && description && amount > 0) { 
-                    incomes.push({ id: Date.now(), month, description, amount });
+                    incomes.push({ 
+                        id: Date.now(), 
+                        month: month, 
+                        description: description, 
+                        amount: amount 
+                    });
                     updateAllUI(); 
                     incomeForm.reset(); 
-                } 
+                } else {
+                    alert("Por favor, preencha todos os campos da renda.");
+                }
             });
             
             savingForm.addEventListener('submit', e => {
