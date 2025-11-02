@@ -64,12 +64,9 @@
 
         /* Estilos Responsivos */
         @media (max-width: 767px) {
-            /* CORREÇÃO: Faz as abas quebrarem a linha em vez de estourarem a tela */
             nav[aria-label="Tabs"] {
-                flex-wrap: wrap;
-                padding-bottom: 0.5rem; /* Adiciona espaço se quebrar a linha */
+                flex-wrap: wrap; /* Faz as abas quebrarem a linha */
             }
-
             .responsive-table thead { display: none; }
             .responsive-table tbody tr { display: block; border-radius: 0.5rem; margin-bottom: 1rem; padding: 1rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
             body.light .responsive-table tbody tr { border: 1px solid #e5e7eb; background-color: white;}
@@ -90,8 +87,10 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Minhas Finanças</h1>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
-                 <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
-                 <div id="last-save-status" class="text-sm text-gray-500 text-right"></div>
+                 <div class="flex-grow flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                    <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
+                    <div id="last-save-status" class="text-sm text-gray-500 sm:text-right"></div>
+                 </div>
                  <button id="theme-toggle-button" class="p-2 rounded-md">
                      <svg id="theme-icon-sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                      <svg id="theme-icon-moon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -588,6 +587,15 @@
             const saveDataButton = document.getElementById('save-data-button');
             saveDataButton.disabled = true;
             saveDataButton.textContent = 'Salvando...';
+            
+            // Salva os filtros atuais
+            filtersState['filter-month'] = document.getElementById('filter-month').value;
+            filtersState['filter-category'] = document.getElementById('filter-category').value;
+            filtersState['filter-payment'] = document.getElementById('filter-payment').value;
+            filtersState['dashboard-month-filter'] = document.getElementById('dashboard-month-filter').value;
+            filtersState['filter-saving-month'] = document.getElementById('filter-saving-month').value;
+            filtersState['filter-saving-type'] = document.getElementById('filter-saving-type').value;
+            
             const saveTime = new Date().toISOString();
             const allData = { expenses, futureEntries, incomes, savings, budgets, savingsGoals, filtersState, lastUpdated: saveTime };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
@@ -1114,7 +1122,7 @@
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
         }
 
-        function updateMonthlyAnalysis(filteredData, month) {
+        function updateMonthlyAnalysis(filteredData) {
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
             if (monthlyCategoryChart) monthlyCategoryChart.destroy();
@@ -1127,6 +1135,7 @@
             chartCanvas.style.display = 'block';
             const categoryData = filteredData.reduce((acc, {category, amount}) => ({...acc, [category]: (acc[category] || 0) + amount}), {});
             
+            const month = document.getElementById('dashboard-month-filter').value;
             let detailsHtml = `<strong>Resumo de ${month === 'all' ? 'Todos os Meses' : formatMonthYear(month)}:</strong><ul class="list-disc ml-4 mt-2">`;
             Object.entries(categoryData).sort(([,a],[,b]) => b-a).forEach(([cat, amt]) => detailsHtml += `<li>${cat}: <strong>${formatCurrency(amt)}</strong></li>`);
             detailsContainer.innerHTML = detailsHtml + '</ul>';
@@ -1699,8 +1708,7 @@
             }));
 
             // Listener do Filtro Mestre do Dashboard
-            const dashboardFilter = document.getElementById('dashboard-month-filter');
-            dashboardFilter.addEventListener('change', (e) => {
+            document.getElementById('dashboard-month-filter').addEventListener('change', (e) => {
                 filtersState[e.target.id] = e.target.value;
                 updateDashboardCharts();
             });
@@ -1753,7 +1761,7 @@
                     tab.view.classList.remove('hidden');
                     
                     // Lógica específica ao abrir cada aba
-                    if (tab.button.id === 'tab-renda') { updateAllUI(); }
+                    if (tab.button.id === 'tab-renda') { updateAllUI(); } // Garante que a tabela de renda atualize
                     if (tab.button.id === 'tab-reservas') { populateGoalsDropdown(); }
                     if (tab.button.id === 'tab-orcamentos') {
                         document.getElementById('budget-mode-default').checked = true;
