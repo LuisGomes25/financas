@@ -113,10 +113,45 @@
                         <form id="expense-form" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                             <div><label for="date" class="block text-sm font-medium">Data</label><input type="date" id="date" class="mt-1 block w-full rounded-md shadow-sm" required></div>
                             <div><label for="cost-type" class="block text-sm font-medium">Tipo</label><select id="cost-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Variável</option><option>Fixo</option></select></div>
-                            <div><label for="category" class="block text-sm font-medium">Categoria</label><select id="category" class="mt-1 block w-full rounded-md shadow-sm" required><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Emprestimos</option><option>Assinaturas</option><option>Outros</option></select></div>
-                            <div><label for="payment-type" class="block text-sm font-medium">Pagamento</label><select id="payment-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Crédito</option><option>Débito</option><option>Boleto</option><option>PIX</option></select></div>
+                            <div>
+                                <label for="category" class="block text-sm font-medium">Categoria</label>
+                                <select id="category" class="mt-1 block w-full rounded-md shadow-sm" required>
+                                    <option>Alimentação</option>
+                                    <option>Assinaturas</option>
+                                    <option>Educação</option>
+                                    <option>Empréstimos</option>
+                                    <option>Lazer</option>
+                                    <option>Moradia</option>
+                                    <option>Outros</option>
+                                    <option>Saúde</option>
+                                    <option>Transporte</option>
+                                    <option>Vestuário</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="payment-type" class="block text-sm font-medium">Pagamento</label>
+                                <select id="payment-type" class="mt-1 block w-full rounded-md shadow-sm" required>
+                                    <option>Boleto</option>
+                                    <option>Crédito</option>
+                                    <option>Débito</option>
+                                    <option>PIX</option>
+                                </select>
+                            </div>
                             <div class="sm:col-span-2 md:col-span-2"><label for="description" class="block text-sm font-medium">Onde foi (Descrição)</label><input type="text" id="description" class="mt-1 block w-full rounded-md shadow-sm" placeholder="Ex: Supermercado" required></div>
-                            <div><label for="bank" class="block text-sm font-medium">Banco</label><select id="bank" class="mt-1 block w-full rounded-md shadow-sm" required><option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option><option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Mercado Pago</option><option>Outro</option></select></div>
+                            <div>
+                                <label for="bank" class="block text-sm font-medium">Banco</label>
+                                <select id="bank" class="mt-1 block w-full rounded-md shadow-sm" required>
+                                    <option>Banco do Brasil</option>
+                                    <option>Bradesco</option>
+                                    <option>Caixa</option>
+                                    <option>Inter</option>
+                                    <option>Itaú</option>
+                                    <option>Mercado Pago</option>
+                                    <option>Nubank</option>
+                                    <option>Santander</option>
+                                    <option>Outro</option>
+                                </select>
+                            </div>
                             <div><label for="amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="amount" class="mt-1 block w-full rounded-md shadow-sm" placeholder="150,50" required></div>
                             <div class="sm:col-span-2 md:col-span-4 space-y-3 mt-2"><div class="flex items-center space-x-2"><input type="checkbox" id="is-recurring" class="h-4 w-4 text-indigo-600 border-gray-300 rounded"><label for="is-recurring" class="text-sm font-medium">Despesa Recorrente?</label></div><div id="recurring-options" class="hidden"><label for="recurrence-end-date" class="block text-sm font-medium">Repetir mensalmente até:</label><input type="date" id="recurrence-end-date" class="mt-1 block w-full rounded-md shadow-sm"></div></div>
                             <div class="sm:col-span-2 md:col-span-4"><button type="submit" class="w-full sm:w-auto mt-4 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Adicionar Despesa</button></div>
@@ -131,8 +166,32 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                             <div><label for="filter-month" class="block text-sm font-medium">Filtrar por Mês</label><select id="filter-month" class="mt-1 block w-full rounded-md shadow-sm"></select></div>
-                            <div><label for="filter-category" class="block text-sm font-medium">Filtrar por Categoria</label><select id="filter-category" class="mt-1 block w-full rounded-md shadow-sm"><option value="all">Todas</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Emprestimos</option><option>Assinaturas</option><option>Outros</option></select></div>
-                            <div><label for="filter-payment" class="block text-sm font-medium">Filtrar por Pagamento</label><select id="filter-payment" class="mt-1 block w-full rounded-md shadow-sm"><option value="all">Todos</option><option>Crédito</option><option>Débito</option><option>PIX</option>Boleto</option></select></div>
+                            <div>
+                                <label for="filter-category" class="block text-sm font-medium">Filtrar por Categoria</label>
+                                <select id="filter-category" class="mt-1 block w-full rounded-md shadow-sm">
+                                    <option value="all">Todas as Categorias</option>
+                                    <option>Alimentação</option>
+                                    <option>Assinaturas</option>
+                                    <option>Educação</option>
+                                    <option>Empréstimos</option>
+                                    <option>Lazer</option>
+                                    <option>Moradia</option>
+                                    <option>Outros</option>
+                                    <option>Saúde</option>
+                                    <option>Transporte</option>
+                                    <option>Vestuário</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-payment" class="block text-sm font-medium">Filtrar por Pagamento</label>
+                                <select id="filter-payment" class="mt-1 block w-full rounded-md shadow-sm">
+                                    <option value="all">Todos os Tipos</option>
+                                    <option>Boleto</option>
+                                    <option>Crédito</option>
+                                    <option>Débito</option>
+                                    <option>PIX</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="overflow-x-auto"><table class="min-w-full responsive-table"><thead class="table-header"><tr><th class="px-6 py-3 text-left text-xs font-medium uppercase">Data</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Descrição</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Categoria</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Tipo</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Valor</th><th class="px-6 py-3 text-right text-xs font-medium uppercase">Ações</th></tr></thead><tbody id="expense-table-body"></tbody></table></div>
                     </div>
@@ -147,16 +206,35 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div>
                     </div>
-                    <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700">Renda Comprometida por Pagamento</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3>
+                            <select id="cost-type-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
+                        </div>
+                        <canvas id="cost-type-chart" class="mt-4"></canvas>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700">Renda por Pagamento</h3>
+                            <select id="payment-commit-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
+                        </div>
                         <canvas id="payment-commitment-chart" class="mt-4"></canvas>
                     </div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Progresso do Orçamento</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700">Progresso do Orçamento</h3>
+                            <select id="budget-progress-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
+                        </div>
                         <div id="budget-progress-container" class="space-y-4"></div>
                     </div>
-                    <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria</h3><canvas id="monthly-category-chart" class="mt-4"></canvas><div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div></div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                             <h3 class="text-lg font-semibold text-gray-700">Gastos por Categoria</h3>
+                             <select id="category-month-filter" class="block w-48 rounded-md shadow-sm sm:text-sm"></select>
+                        </div>
+                        <canvas id="monthly-category-chart" class="mt-4"></canvas>
+                        <div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div>
+                    </div>
                     <div class="card">
                         <h3 class="text-lg font-semibold text-gray-700">Comparação de Gastos Mensais</h3>
                         <canvas id="monthly-comparison-chart" class="mt-4"></canvas>
@@ -260,10 +338,45 @@
                 <input type="hidden" id="edit-expense-id">
                 <div><label for="edit-date" class="block text-sm font-medium">Data</label><input type="date" id="edit-date" class="mt-1 block w-full rounded-md shadow-sm" required></div>
                 <div><label for="edit-cost-type" class="block text-sm font-medium">Tipo</label><select id="edit-cost-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Variável</option><option>Fixo</option></select></div>
-                <div><label for="edit-category" class="block text-sm font-medium">Categoria</label><select id="edit-category" class="mt-1 block w-full rounded-md shadow-sm" required><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Saúde</option><option>Vestuário</option><option>Educação</option><option>Outros</option></select></div>
-                <div><label for="edit-payment-type" class="block text-sm font-medium">Pagamento</label><select id="edit-payment-type" class="mt-1 block w-full rounded-md shadow-sm" required><option>Crédito</option><option>Débito</option><option>PIX</option></select></div>
+                <div>
+                    <label for="edit-category" class="block text-sm font-medium">Categoria</label>
+                    <select id="edit-category" class="mt-1 block w-full rounded-md shadow-sm" required>
+                        <option>Alimentação</option>
+                        <option>Assinaturas</option>
+                        <option>Educação</option>
+                        <option>Empréstimos</option>
+                        <option>Lazer</option>
+                        <option>Moradia</option>
+                        <option>Outros</option>
+                        <option>Saúde</option>
+                        <option>Transporte</option>
+                        <option>Vestuário</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit-payment-type" class="block text-sm font-medium">Pagamento</label>
+                    <select id="edit-payment-type" class="mt-1 block w-full rounded-md shadow-sm" required>
+                        <option>Boleto</option>
+                        <option>Crédito</option>
+                        <option>Débito</option>
+                        <option>PIX</option>
+                    </select>
+                </div>
                 <div class="sm:col-span-2"><label for="edit-description" class="block text-sm font-medium">Descrição</label><input type="text" id="edit-description" class="mt-1 block w-full rounded-md shadow-sm" required></div>
-                <div><label for="edit-bank" class="block text-sm font-medium">Banco</label><select id="edit-bank" class="mt-1 block w-full rounded-md shadow-sm" required><option>Nubank</option><option>Itaú</option><option>Bradesco</option><option>Santander</option><option>Banco do Brasil</option><option>Caixa</option><option>Inter</option><option>Outro</option></select></div>
+                <div>
+                    <label for="edit-bank" class="block text-sm font-medium">Banco</label>
+                    <select id="edit-bank" class="mt-1 block w-full rounded-md shadow-sm" required>
+                        <option>Banco do Brasil</option>
+                        <option>Bradesco</option>
+                        <option>Caixa</option>
+                        <option>Inter</option>
+                        <option>Itaú</option>
+                        <option>Mercado Pago</option>
+                        <option>Nubank</option>
+                        <option>Santander</option>
+                        <option>Outro</option>
+                    </select>
+                </div>
                 <div><label for="edit-amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="edit-amount" class="mt-1 block w-full rounded-md shadow-sm" required></div>
                 <div id="edit-recurring-options" class="sm:col-span-2 hidden">
                     <label for="edit-recurrence-scope" class="block text-sm font-medium">Aplicar alteração a:</label>
@@ -485,7 +598,7 @@
             const container = document.getElementById('budget-inputs-container');
             if (!container) return;
             container.innerHTML = '';
-            const categories = ["Moradia", "Alimentação", "Transporte", "Lazer", "Saúde", "Vestuário", "Educação", "Outros"];
+            const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
             const monthBudgets = budgets[month] || {};
             categories.forEach(category => {
                 const value = monthBudgets[category] || '';
@@ -539,7 +652,7 @@
                 goalElement.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-semibold">${goal.name}</span>
-                        <button onclick="deleteGoal(${goal.id})" class="text-red-600 hover:text-red-700 text-xs font-semibold">Excluir</button>
+                        <button onclick="deleteGoal(${goal.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>
                     </div>
                     <div class="flex justify-between text-sm mb-1">
                         <span>Alcançado: ${formatCurrency(savedAmount)}</span>
@@ -567,17 +680,29 @@
         
         // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
         function updateAllUI() {
-            populateExpenseMonthFilter();
-            syncDespesasView();
+            populateAllMonthFilters();
+            syncDespesasView(); // Atualiza a tabela de despesas
+            
+            // Atualiza todos os dashboards individuais
+            updateSummaryCards();
+            updateCostTypeAnalysis();
+            updatePaymentTypeCommitmentChart();
+            updateBudgetProgress();
+            updateMonthlyAnalysis();
+            updateMonthlyComparisonChart();
+
+            // Atualiza a aba de Reservas
             renderMonthlyIncomes();
             updateSavingsDashboard();
             applySavingsFiltersAndRender();
-            updateMonthlyComparisonChart();
             updateGoalProgress();
+
+            // Atualiza a aba de Metas
             populateGoalsDropdown();
             renderGoalsList();
         }
-
+        
+        // Sincroniza apenas a tabela, com base nos filtros principais
         function syncDespesasView() {
             const month = document.getElementById('filter-month').value;
             const category = document.getElementById('filter-category').value;
@@ -596,28 +721,36 @@
 
             const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
             renderExpenseTable(tableShouldBeEmpty ? [] : filteredData);
-            updateSummaryCards(filteredData, month);
-            updateCostTypeAnalysis(filteredData);
-            updateMonthlyAnalysis(filteredData);
-            updateBudgetProgress(filteredData, month);
-            updatePaymentTypeCommitmentChart(filteredData, month);
         }
 
-        function populateExpenseMonthFilter() {
-            const uniqueMonths = [...new Set(expenses.map(e => e.date.substring(0, 7)))].sort().reverse();
+        // Popula TODOS os filtros de mês
+        function populateAllMonthFilters() {
+            const uniqueMonths = [...new Set(expenses.map(e => e.date.substring(0, 7)))].sort(); // Ordem crescente
             
-            const mainFilter = document.getElementById('filter-month');
-            const visaoGeralFilter = document.getElementById('visao-geral-month-filter');
-        
-            const currentMainVal = mainFilter.value;
-            mainFilter.innerHTML = '<option value="all">Todos os Meses</option>';
-            uniqueMonths.forEach(m => mainFilter.add(new Option(formatMonthYear(m), m)));
-            mainFilter.value = uniqueMonths.includes(currentMainVal) ? currentMainVal : 'all';
+            const monthFilters = [
+                'filter-month',
+                'visao-geral-month-filter',
+                'cost-type-month-filter',
+                'payment-commit-month-filter',
+                'budget-progress-month-filter',
+                'category-month-filter'
+            ];
 
-            const currentVisaoVal = visaoGeralFilter.value;
-            visaoGeralFilter.innerHTML = '<option value="all">Todos os Meses</option>';
-            uniqueMonths.forEach(m => visaoGeralFilter.add(new Option(formatMonthYear(m), m)));
-            visaoGeralFilter.value = uniqueMonths.includes(currentVisaoVal) ? currentVisaoVal : (uniqueMonths[0] || 'all');
+            monthFilters.forEach(filterId => {
+                const select = document.getElementById(filterId);
+                if (!select) return;
+                
+                const currentVal = select.value;
+                select.innerHTML = '<option value="all">Todos os Meses</option>';
+                uniqueMonths.forEach(m => select.add(new Option(formatMonthYear(m), m)));
+                
+                // Mantém o valor selecionado, se ainda existir
+                if (uniqueMonths.includes(currentVal)) {
+                    select.value = currentVal;
+                } else {
+                    select.value = 'all';
+                }
+            });
         }
 
         function renderMonthlyIncomes() {
@@ -645,11 +778,16 @@
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
         }
 
-        function updateMonthlyAnalysis(filteredData) {
+        function updateMonthlyAnalysis() {
+            const month = document.getElementById('category-month-filter').value;
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
             if (monthlyCategoryChart) monthlyCategoryChart.destroy();
             
+            const filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => e.date.startsWith(month));
+
             if (filteredData.length === 0) {
                 detailsContainer.innerHTML = '';
                 chartCanvas.style.display = 'none';
@@ -657,7 +795,7 @@
             }
             chartCanvas.style.display = 'block';
             const categoryData = filteredData.reduce((acc, {category, amount}) => ({...acc, [category]: (acc[category] || 0) + amount}), {});
-            let detailsHtml = `<strong>Resumo dos Filtros:</strong><ul class="list-disc ml-4 mt-2">`;
+            let detailsHtml = `<strong>Resumo de ${formatMonthYear(month) || 'Todos os Meses'}:</strong><ul class="list-disc ml-4 mt-2">`;
             Object.entries(categoryData).sort(([,a],[,b]) => b-a).forEach(([cat, amt]) => detailsHtml += `<li>${cat}: <strong>${formatCurrency(amt)}</strong></li>`);
             detailsContainer.innerHTML = detailsHtml + '</ul>';
             
@@ -667,7 +805,12 @@
             });
         }
         
-        function updateCostTypeAnalysis(filteredData) {
+        function updateCostTypeAnalysis() {
+            const month = document.getElementById('cost-type-month-filter').value;
+            const filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => e.date.startsWith(month));
+
             if (costTypeChart) costTypeChart.destroy();
             const costData = filteredData.reduce((acc, {costType, amount}) => {
                 acc[costType] = (acc[costType] || 0) + amount;
@@ -680,7 +823,12 @@
             });
         }
 
-        function updateBudgetProgress(filteredData, month) {
+        function updateBudgetProgress() {
+            const month = document.getElementById('budget-progress-month-filter').value;
+            const filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => e.date.startsWith(month));
+            
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
             if (month === 'all' || !budgets[month] || Object.keys(budgets[month]).length === 0) {
@@ -757,7 +905,7 @@
         function updateSavingsDashboard() {
             const total = savings.reduce((sum, s) => sum + s.amount, 0);
             document.getElementById('total-savings').textContent = formatCurrency(total);
-            const uniqueMonths = [...new Set(savings.map(s => s.month))].sort().reverse();
+            const uniqueMonths = [...new Set(savings.map(s => s.month))].sort(); // Ordem Crescente
             const monthFilterEl = document.getElementById('filter-saving-month');
             const currentMonthVal = monthFilterEl.value;
             monthFilterEl.innerHTML = '<option value="all">Todos os Meses</option>';
@@ -838,7 +986,7 @@
             });
         }
         
-        // --- TEMA E DICAS (VERSÃO CORRIGIDA) ---
+        // --- TEMA E DICAS ---
         function applyTheme(theme) {
             const sunIcon = document.getElementById('theme-icon-sun');
             const moonIcon = document.getElementById('theme-icon-moon');
@@ -926,7 +1074,7 @@
                 acc[month] = (acc[month] || 0) + exp.amount;
                 return acc;
             }, {});
-            const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
+            const sortedMonths = Object.keys(monthlyData).sort(); // Ordem Crescente
             monthlyComparisonChart = new Chart(document.getElementById('monthly-comparison-chart'), {
                 type: 'line',
                 data: {
@@ -948,7 +1096,12 @@
             });
         }
 
-        function updatePaymentTypeCommitmentChart(filteredData, month) {
+        function updatePaymentTypeCommitmentChart() {
+            const month = document.getElementById('payment-commit-month-filter').value;
+            const filteredData = (month === 'all')
+                ? [...expenses]
+                : expenses.filter(e => e.date.startsWith(month));
+
             if (paymentCommitmentChart) paymentCommitmentChart.destroy();
             const container = document.getElementById('payment-commitment-chart');
             if(!container) return;
@@ -974,7 +1127,7 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{ data: dataValues, backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b'] }]
+                    datasets: [{ data: dataValues, backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6'] }] // Adicionada cor para Boleto
                 },
                 options: {
                     indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true, ticks: { callback: (value) => value + '%' } } },
@@ -1061,10 +1214,22 @@
             const tabMetas = document.getElementById('tab-metas');
             const budgetMonthInput = document.getElementById('budget-month');
             const saveBudgetButton = document.getElementById('save-budget-button');
+            
+            // Listeners dos Filtros Principais (só para a tabela)
             const filters = [document.getElementById('filter-month'), document.getElementById('filter-category'), document.getElementById('filter-payment')];
-            const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
-            const visaoGeralMonthFilter = document.getElementById('visao-geral-month-filter');
+            filters.forEach(el => el.addEventListener('change', syncDespesasView));
 
+            // Listeners dos Filtros de Dashboard
+            document.getElementById('visao-geral-month-filter').addEventListener('change', updateSummaryCards);
+            document.getElementById('cost-type-month-filter').addEventListener('change', updateCostTypeAnalysis);
+            document.getElementById('payment-commit-month-filter').addEventListener('change', updatePaymentTypeCommitmentChart);
+            document.getElementById('budget-progress-month-filter').addEventListener('change', updateBudgetProgress);
+            document.getElementById('category-month-filter').addEventListener('change', updateMonthlyAnalysis); // Renomeei 'month-select' para 'category-month-filter' no HTML
+            
+            const savingFilters = [document.getElementById('filter-saving-month'), document.getElementById('filter-saving-type')];
+            savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
+
+            // Setup Inicial
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
             updateSigninStatus(false);
@@ -1212,13 +1377,7 @@
             themeToggleButton.addEventListener('click', toggleTheme);
             geminiButton.addEventListener('click', callGeminiAPI);
             saveDataButton.addEventListener('click', saveDataToDrive);
-            filters.forEach(el => el.addEventListener('change', syncDespesasView));
-            savingFilters.forEach(el => el.addEventListener('change', applySavingsFiltersAndRender));
             
-            if (visaoGeralMonthFilter) {
-                visaoGeralMonthFilter.addEventListener('change', updateSummaryCards);
-            }
-
             document.getElementById('is-recurring').addEventListener('change', (e) => { 
                 document.getElementById('recurring-options').classList.toggle('hidden', !e.target.checked);
                 document.getElementById('recurrence-end-date').required = e.target.checked;
@@ -1227,6 +1386,3 @@
     </script>
 </body>
 </html>
-
-
-
