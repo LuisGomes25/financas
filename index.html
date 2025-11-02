@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilha de Finanças Pessoais com IA</title>
+    <title>Planilha de Finanças Pessoais</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,6 @@
         <header class="mb-4 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Minhas Finanças</h1>
-                <p class="text-gray-500 mt-1">Sua planilha e dashboard financeiro com salvamento no Google Drive.</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
                  <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
@@ -219,6 +218,7 @@
                 </div>
     
                 <div class="lg:col-span-2 space-y-6">
+                    
                     <div class="card">
                         <label for="dashboard-month-filter" class="block text-sm font-medium mb-2">Filtro Mestre do Dashboard</label>
                         <select id="dashboard-month-filter" class="block w-full rounded-md shadow-sm sm:text-sm"></select>
@@ -275,7 +275,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div id="renda-view" class="hidden">
             <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                 <div class="lg:col-span-3 space-y-6">
@@ -779,14 +779,15 @@
             container.innerHTML = '';
             
             const isRangeMode = (monthKey === 'range');
-            const budgetKeyToShow = isRangeMode ? 'default' : monthKey;
+            // CORREÇÃO AQUI: Se for range, não deve carregar valor, só placeholder
+            const budgetKeyToShow = isRangeMode ? 'default' : monthKey; 
             
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
             const monthBudgets = budgets[budgetKeyToShow] || budgets["default"] || {};
             const defaultBudgets = budgets["default"] || {};
 
             categories.forEach(category => {
-                const value = isRangeMode ? '' : (monthBudgets[category] || '');
+                const value = isRangeMode ? '' : (monthBudgets[category] || ''); // Se for range, valor é vazio
                 const placeholder = (defaultBudgets[category] || '0,00');
 
                 const inputGroup = document.createElement('div');
@@ -986,12 +987,11 @@
 
             updateSummaryCards(filteredData, month); 
             updateCostTypeAnalysis(filteredData);
-            updateMonthlyAnalysis(filteredData);
+            updateMonthlyAnalysis(filteredData, month);
             updateBudgetProgress(filteredData, month);
             updatePaymentTypeCommitmentChart(filteredData, month);
             updateBillByBankChart(filteredData);
         }
-
 
         // Popula TODOS os filtros de mês
         function populateAllMonthFilters() {
@@ -1025,10 +1025,6 @@
                     select.value = uniqueMonths.includes(currentMonthKey) ? currentMonthKey : (uniqueMonths[uniqueMonths.length - 1] || 'all');
                 }
             });
-        }
-
-        function renderMonthlyIncomes() {
-             // Esta função foi substituída por renderIncomesTable e updateIncomeDashboard
         }
         
         function renderIncomesTable() {
@@ -1087,7 +1083,6 @@
         }
 
         function updateSummaryCards(filteredData, month) {
-            // Calcula a renda relevante para o mês (ou todos)
             const relevantIncome = (month === 'all')
                 ? incomes.reduce((sum, income) => sum + income.amount, 0)
                 : incomes.filter(i => i.month === month).reduce((sum, i) => sum + i.amount, 0);
@@ -1219,6 +1214,7 @@
             document.getElementById('total-savings').textContent = formatCurrency(total);
             const uniqueMonths = [...new Set(savings.map(s => s.month))].sort(); // Ordem Crescente
             const monthFilterEl = document.getElementById('filter-saving-month');
+            if (!monthFilterEl) return;
             const currentMonthVal = monthFilterEl.value;
             monthFilterEl.innerHTML = '<option value="all">Todos os Meses</option>';
             uniqueMonths.forEach(m => monthFilterEl.add(new Option(formatMonthYear(m), m)));
@@ -1828,7 +1824,6 @@
                 toggleBillMonthField('form');
             });
 
-            // CORREÇÃO: Listener do formulário de Renda
             incomeForm.addEventListener('submit', e => { 
                 e.preventDefault(); 
                 const month = document.getElementById('income-month').value;
