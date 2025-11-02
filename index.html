@@ -101,6 +101,7 @@
             <nav class="-mb-px flex space-x-2 sm:space-x-4" aria-label="Tabs">
                 <a id="tab-despesas" class="tab active">Despesas</a>
                 <a id="tab-contas" class="tab">Contas a Pagar</a>
+                <a id="tab-renda" class="tab">Renda</a>
                 <a id="tab-reservas" class="tab">Reservas</a>
                 <a id="tab-orcamentos" class="tab">Orçamentos</a>
                 <a id="tab-metas" class="tab">Metas</a>
@@ -219,8 +220,6 @@
                 </div>
     
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gerenciar Rendas Mensais</h3><form id="income-form" class="flex items-end gap-2 mb-4"><div class="flex-grow"><label for="income-month" class="block text-sm font-medium">Mês/Ano</label><input type="month" id="income-month" class="mt-1 block w-full rounded-md shadow-sm" required></div><div><label for="income-amount" class="block text-sm font-medium">Renda (R$)</label><input type="number" step="0.01" id="income-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="6000,00"></div><button type="submit" class="py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar</button></form><div id="monthly-incomes-list" class="text-sm space-y-1"></div></div>
-                    
                     <div class="card">
                         <label for="dashboard-month-filter" class="block text-sm font-medium mb-2">Filtro Mestre do Dashboard</label>
                         <select id="dashboard-month-filter" class="block w-full rounded-md shadow-sm sm:text-sm"></select>
@@ -276,6 +275,59 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div id="renda-view" class="hidden">
+            <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="card">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Nova Renda</h2>
+                        <form id="income-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="income-month" class="block text-sm font-medium">Mês/Ano</label>
+                                <input type="month" id="income-month" class="mt-1 block w-full rounded-md shadow-sm" required>
+                            </div>
+                            <div>
+                                <label for="income-amount" class="block text-sm font-medium">Valor (R$)</label>
+                                <input type="number" step="0.01" id="income-amount" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="6000,00">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="income-description" class="block text-sm font-medium">Descrição</label>
+                                <input type="text" id="income-description" class="mt-1 block w-full rounded-md shadow-sm" required placeholder="Ex: Salário Empresa X">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <button type="submit" class="w-full sm:w-auto mt-4 justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Adicionar Renda</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4">Histórico de Rendas</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full responsive-table">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase">Mês</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase">Descrição</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium uppercase">Valor (R$)</th>
+                                        <th class="px-6 py-3"><span class="sr-only">Ações</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="incomes-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="card text-center">
+                        <h3 class="text-lg font-medium text-gray-500">Renda Total (Todos os Meses)</h3>
+                        <p id="total-income" class="mt-1 text-3xl sm:text-4xl font-bold text-green-500">R$ 0,00</p>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-gray-700">Rendas por Mês</h3>
+                        <canvas id="monthly-income-chart" class="mt-4"></canvas>
+                    </div>
+                </div>
+            </main>
         </div>
 
         <div id="reservas-view" class="hidden">
@@ -471,14 +523,14 @@
         // --- DADOS GLOBAIS ---
         let expenses = [];
         let futureEntries = [];
-        let monthlyIncomes = {};
+        let incomes = []; // NOVO: Substitui monthlyIncomes
         let savings = [];
         let budgets = { "default": {} };
         let savingsGoals = [];
         let lastSaveTime = null;
         
         // --- GRÁFICOS (instâncias) ---
-        let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart, billByBankChart;
+        let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart, billByBankChart, monthlyIncomeChart;
         
         // --- CONFIGURAÇÃO GOOGLE API ---
         const CLIENT_ID = '164577357008-o68h1qr3h69ik5ot1531f1fvvrl40umr.apps.googleusercontent.com';
@@ -522,7 +574,7 @@
         
         // --- FUNÇÕES DE DADOS (CARREGAR/SALVAR) ---
         function loadDefaultData() {
-            expenses = []; futureEntries = []; monthlyIncomes = {}; savings = []; budgets = { "default": {} }; savingsGoals = [];
+            expenses = []; futureEntries = []; incomes = []; savings = []; budgets = { "default": {} }; savingsGoals = [];
             document.getElementById('last-save-status').textContent = 'Nunca salvo.';
         }
 
@@ -531,7 +583,7 @@
             saveDataButton.disabled = true;
             saveDataButton.textContent = 'Salvando...';
             const saveTime = new Date().toISOString();
-            const allData = { expenses, futureEntries, monthlyIncomes, savings, budgets, savingsGoals, lastUpdated: saveTime };
+            const allData = { expenses, futureEntries, incomes, savings, budgets, savingsGoals, lastUpdated: saveTime };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
             try {
                 const formData = new FormData();
@@ -583,7 +635,21 @@
                     const data = JSON.parse(fileResponse.body);
                     expenses = data.expenses || [];
                     futureEntries = data.futureEntries || [];
-                    monthlyIncomes = data.monthlyIncomes || {};
+                    
+                    // Migração de dados de Renda
+                    if (data.incomes) {
+                        incomes = data.incomes;
+                    } else if (data.monthlyIncomes) { // Se achar o formato antigo
+                        incomes = Object.entries(data.monthlyIncomes).map(([month, amount], index) => ({
+                            id: Date.now() + index,
+                            month: month,
+                            description: "Renda (importado)",
+                            amount: amount
+                        }));
+                    } else {
+                        incomes = [];
+                    }
+
                     savings = data.savings || [];
                     budgets = data.budgets || { "default": {} };
                     savingsGoals = data.savingsGoals || [];
@@ -723,7 +789,7 @@
 
             categories.forEach(category => {
                 const value = isRangeMode ? '' : (monthBudgets[category] || '');
-                const placeholder = defaultBudgets[category] || '0,00';
+                const placeholder = (defaultBudgets[category] || '0,00');
 
                 const inputGroup = document.createElement('div');
                 inputGroup.className = 'grid grid-cols-3 gap-4 items-center';
@@ -878,8 +944,9 @@
             renderFutureEntriesTable();
             updateUpcomingBills();
 
-            // Atualiza a aba de Reservas
+            // Atualiza a aba de Reservas e Renda
             renderMonthlyIncomes();
+            updateIncomeDashboard();
             updateSavingsDashboard();
             applySavingsFiltersAndRender();
             updateGoalProgress();
@@ -964,19 +1031,73 @@
 
         function renderMonthlyIncomes() {
              const listEl = document.getElementById('monthly-incomes-list');
-            listEl.innerHTML = '';
-            Object.keys(monthlyIncomes).sort().reverse().forEach(month => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-gray-50 p-2 rounded';
-                div.innerHTML = `<span>${formatMonthYear(month)}: <strong>${formatCurrency(monthlyIncomes[month])}</strong></span> <button onclick="deleteIncome('${month}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>`;
-                listEl.appendChild(div);
+             if (listEl) { // Verifica se o elemento existe (está na aba Despesas)
+                listEl.innerHTML = '';
+                Object.keys(monthlyIncomes).sort().reverse().forEach(month => {
+                    const div = document.createElement('div');
+                    div.className = 'flex justify-between items-center bg-gray-50 p-2 rounded';
+                    div.innerHTML = `<span>${formatMonthYear(month)}: <strong>${formatCurrency(monthlyIncomes[month])}</strong></span> <button onclick="deleteIncome('${month}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>`;
+                    listEl.appendChild(div);
+                });
+             }
+        }
+
+        // Nova função para a tabela de Rendas
+        function renderIncomesTable() {
+            const tableBody = document.getElementById('incomes-table-body');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            if (incomes.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-gray-500">Nenhuma renda adicionada.</td></tr>`;
+                return;
+            }
+            incomes.sort((a,b) => b.month.localeCompare(a.month)).forEach(income => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td data-label="Mês" class="px-6 py-4 whitespace-nowrap text-sm font-medium">${formatMonthYear(income.month)}</td>
+                    <td data-label="Descrição" class="px-6 py-4 whitespace-nowrap text-sm">${income.description}</td>
+                    <td data-label="Valor" class="px-6 py-4 whitespace-nowrap text-sm text-green-500 text-right font-semibold">${formatCurrency(income.amount)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium actions-cell">
+                        <button onclick="deleteIncome(${income.id})" class="text-red-600 hover:text-red-900">Excluir</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Nova função para o dashboard de Rendas
+        function updateIncomeDashboard() {
+            const total = incomes.reduce((sum, i) => sum + i.amount, 0);
+            document.getElementById('total-income').textContent = formatCurrency(total);
+
+            if (monthlyIncomeChart) monthlyIncomeChart.destroy();
+            
+            const monthlyData = incomes.reduce((acc, income) => {
+                const month = income.month;
+                acc[month] = (acc[month] || 0) + income.amount;
+                return acc;
+            }, {});
+            const sortedMonths = Object.keys(monthlyData).sort();
+
+            monthlyIncomeChart = new Chart(document.getElementById('monthly-income-chart'), {
+                type: 'bar',
+                data: { 
+                    labels: sortedMonths.map(formatMonthYear), 
+                    datasets: [{ 
+                        label: 'Renda Recebida', 
+                        data: sortedMonths.map(m => monthlyData[m]), 
+                        backgroundColor: '#10b981' 
+                    }] 
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
             });
         }
         
         function updateSummaryCards(filteredData, month) {
             const relevantIncome = (month === 'all')
-                ? Object.values(monthlyIncomes).reduce((s, i) => s + i, 0)
-                : monthlyIncomes[month] || 0;
+                ? incomes.reduce((sum, income) => sum + income.amount, 0)
+                : incomes.filter(i => i.month === month).reduce((sum, i) => sum + i.amount, 0);
+            
             const total = filteredData.reduce((s, e) => s + e.amount, 0);
             
             document.getElementById('total-expenses').textContent = formatCurrency(total);
@@ -1355,8 +1476,8 @@
             if(!container) return;
             
             const relevantIncome = (month === 'all')
-                ? Object.values(monthlyIncomes).reduce((sum, income) => sum + income, 0)
-                : monthlyIncomes[month] || 0;
+                ? incomes.reduce((sum, income) => sum + income.amount, 0)
+                : incomes.filter(i => i.month === month).reduce((sum, i) => sum + i.amount, 0);
 
             if (relevantIncome === 0 || filteredData.length === 0) {
                 container.style.display = 'none';
@@ -1425,18 +1546,22 @@
         // --- FUNÇÃO GEMINI API ---
         async function callGeminiAPI() {
             const geminiButton = document.getElementById('gemini-button');
-            if (expenses.length === 0 && Object.keys(monthlyIncomes).length === 0 && savings.length === 0) {
+            if (expenses.length === 0 && futureEntries.length === 0 && Object.keys(monthlyIncomes).length === 0 && savings.length === 0) {
                 document.getElementById('analysis-text').innerHTML = '<p>Por favor, adicione alguns dados antes de pedir uma análise.</p>';
                 return;
             }
             geminiButton.disabled = true;
             geminiButton.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Gerando...`;
             document.getElementById('analysis-text').innerHTML = '<p>Analisando seus dados financeiros... Isso pode levar um momento.</p>';
-            const incomesText = Object.entries(monthlyIncomes).map(([month, income]) => `- ${formatMonthYear(month)}: ${formatCurrency(income)}`).join('\n');
+            
+            const incomesText = incomes.map(i => `- Mês: ${formatMonthYear(i.month)}, Descrição: ${i.description}, Valor: ${formatCurrency(i.amount)}`).join('\n');
             const expensesText = expenses.map(e => `- Data: ${e.date}, Descrição: ${e.description}, Categoria: ${e.category}, Valor: ${formatCurrency(e.amount)}`).join('\n');
+            const futureText = futureEntries.map(e => `- Vencimento: ${e.date}, Descrição: ${e.description}, Categoria: ${e.category}, Valor: ${formatCurrency(e.amount)}`).join('\n');
             const savingsText = savings.map(s => `- Mês: ${formatMonthYear(s.month)}, Tipo: ${s.type}, Valor: ${formatCurrency(s.amount)}`).join('\n');
+            
             const systemPrompt = "Você é um consultor financeiro amigável e prestativo. Sua tarefa é analisar os dados de despesas, rendas e reservas de um usuário e fornecer dicas personalizadas, práticas e acionáveis para economizar dinheiro. Responda em português do Brasil. Formate sua resposta usando markdown simples (cabeçalhos com ##, negrito com **, e listas com *).";
-            const userQuery = `Analise meus dados financeiros e me dê dicas para melhorar minha saúde financeira.\n\n**Minhas Rendas Mensais:**\n${incomesText || 'Nenhuma renda registrada.'}\n\n**Minhas Despesas:**\n${expensesText || 'Nenhuma despesa registrada.'}\n\n**Minhas Reservas:**\n${savingsText || 'Nenhuma reserva registrada.'}`;
+            const userQuery = `Analise meus dados financeiros e me dê dicas para melhorar minha saúde financeira.\n\n**Minhas Rendas:**\n${incomesText || 'Nenhuma renda registrada.'}\n\n**Minhas Despesas Pagas:**\n${expensesText || 'Nenhuma despesa registrada.'}\n\n**Minhas Contas a Pagar:**\n${futureText || 'Nenhuma conta a pagar registrada.'}\n\n**Minhas Reservas:**\n${savingsText || 'Nenhuma reserva registrada.'}`;
+            
             const geminiApiKey = "AIzaSyC9eCGpgJuypWE98f19Z2XZ3QFeHHjU4_4";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
             try {
@@ -1489,7 +1614,10 @@
             updateAllUI();
         };
 
-        window.deleteIncome = (month) => { delete monthlyIncomes[month]; updateAllUI(); };
+        window.deleteIncome = (id) => { 
+            incomes = incomes.filter(i => i.id !== id); 
+            updateAllUI(); 
+        };
         window.deleteSaving = (id) => { savings = savings.filter(s => s.id !== id); updateAllUI(); };
         window.deleteGoal = (id) => {
             if (confirm("Tem certeza que deseja apagar esta meta? As poupanças associadas não serão apagadas, mas ficarão sem meta.")) {
@@ -1538,6 +1666,7 @@
             
             const tabDespesas = document.getElementById('tab-despesas');
             const tabContas = document.getElementById('tab-contas');
+            const tabRenda = document.getElementById('tab-renda');
             const tabReservas = document.getElementById('tab-reservas');
             const tabOrcamentos = document.getElementById('tab-orcamentos');
             const tabMetas = document.getElementById('tab-metas');
@@ -1583,6 +1712,7 @@
             const tabs = [
                 { button: tabDespesas, view: document.getElementById('despesas-view') },
                 { button: tabContas, view: document.getElementById('contas-a-pagar-view') },
+                { button: tabRenda, view: document.getElementById('renda-view') },
                 { button: tabReservas, view: document.getElementById('reservas-view') },
                 { button: tabOrcamentos, view: document.getElementById('orcamentos-view') },
                 { button: tabMetas, view: document.getElementById('metas-view') }
@@ -1597,6 +1727,7 @@
                     tab.view.classList.remove('hidden');
                     
                     // Lógica específica ao abrir cada aba
+                    if (tab.button.id === 'tab-renda') { updateAllUI(); }
                     if (tab.button.id === 'tab-reservas') { populateGoalsDropdown(); }
                     if (tab.button.id === 'tab-orcamentos') {
                         document.getElementById('budget-mode-default').checked = true;
@@ -1705,9 +1836,14 @@
 
             incomeForm.addEventListener('submit', e => { 
                 e.preventDefault(); 
-                const m = document.getElementById('income-month').value; 
-                const a = parseFloat(document.getElementById('income-amount').value); 
-                if(m && a >= 0) { monthlyIncomes[m] = a; updateAllUI(); incomeForm.reset(); } 
+                const month = document.getElementById('income-month').value;
+                const description = document.getElementById('income-description').value;
+                const amount = parseFloat(document.getElementById('income-amount').value); 
+                if(month && description && amount > 0) { 
+                    incomes.push({ id: Date.now(), month, description, amount });
+                    updateAllUI(); 
+                    incomeForm.reset(); 
+                } 
             });
             
             savingForm.addEventListener('submit', e => {
