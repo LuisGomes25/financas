@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilha de Finanças Pessoais com IA</title>
+    <title>Planilha de Finanças Pessoais</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -62,6 +62,7 @@
         .progress-fill.budget.red { background-color: #ef4444; }
         .progress-fill.goal { background-color: #10b981; }
 
+
         /* Estilos Responsivos */
         @media (max-width: 767px) {
             .responsive-table thead { display: none; }
@@ -82,7 +83,6 @@
         <header class="mb-4 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Minhas Finanças</h1>
-                <p class="text-gray-500 mt-1">Sua planilha e dashboard financeiro com salvamento no Google Drive.</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
                  <div id="auth-status" class="text-sm text-gray-600 flex-grow"></div>
@@ -225,23 +225,23 @@
                             <p class="text-sm text-gray-500">Nenhuma conta a pagar registada para breve.</p>
                         </div>
                     </div>
-                    <div class="card"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-700">Visão Geral</h3></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div></div>
-                    <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
+                    <div class="card"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-700">Visão Geral (Filtros Principais)</h3></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"><div><h3 class="text-sm font-medium text-gray-500">Gasto Total</h3><p id="total-expenses" class="mt-1 text-2xl font-semibold text-red-500">R$ 0,00</p></div><div><h3 class="text-sm font-medium text-gray-500">Renda Comprometida</h3><p id="income-percentage" class="mt-1 text-2xl font-semibold text-yellow-500">0%</p></div><div><h3 class="text-sm font-medium text-gray-500">Saldo Restante</h3><p id="remaining-balance" class="mt-1 text-2xl font-semibold text-green-500">R$ 0,00</p></div></div></div>
+                    <div class="card"><h3 class="text-lg font-semibold text-gray-700">Fixos vs. Variáveis (Filtros Principais)</h3><canvas id="cost-type-chart" class="mt-4"></canvas></div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700">Renda Comprometida por Pagamento</h3>
+                        <h3 class="text-lg font-semibold text-gray-700">Renda por Pagamento (Filtros Principais)</h3>
                         <canvas id="payment-commitment-chart" class="mt-4"></canvas>
                     </div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Progresso do Orçamento</h3>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Progresso do Orçamento (Filtros Principais)</h3>
                         <div id="budget-progress-container" class="space-y-4"></div>
                     </div>
-                    <div class="card">
-                         <h3 class="text-lg font-semibold text-gray-700">Faturas de Crédito por Banco</h3>
+                     <div class="card">
+                         <h3 class="text-lg font-semibold text-gray-700">Faturas de Crédito por Banco (Filtros Principais)</h3>
                         <canvas id="bill-by-bank-chart" class="mt-4"></canvas>
                     </div>
-                    <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria</h3><canvas id="monthly-category-chart" class="mt-4"></canvas><div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div></div>
+                    <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoria (Filtros Principais)</h3><canvas id="monthly-category-chart" class="mt-4"></canvas><div id="monthly-analysis-details" class="mt-4 text-sm space-y-1"></div></div>
                     <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-700">Comparação de Gastos Mensais</h3>
+                        <h3 class="text-lg font-semibold text-gray-700">Comparação de Gastos Mensais (Geral)</h3>
                         <canvas id="monthly-comparison-chart" class="mt-4"></canvas>
                     </div>
                     <div class="card"><h3 class="text-lg font-semibold text-gray-700 mb-4">Análise com IA</h3><button id="gemini-button" class="w-full flex items-center justify-center py-2 px-3 border rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700">✨ Gerar Dicas com IA</button><div id="analysis-text" class="text-sm space-y-2 mt-4"><p>Faça login e salve seus dados para usar a IA.</p></div><div id="tip-ia" class="mini-tip">💡 <b>Dica:</b> Após adicionar alguns gastos, clique aqui para receber uma análise financeira personalizada e dicas para economizar!<button onclick="dismissTip('tip-ia')" class="mini-tip-close">&times;</button></div></div>
@@ -438,6 +438,7 @@
                     </select>
                 </div>
                 <div><label for="edit-amount" class="block text-sm font-medium">Valor (R$)</label><input type="number" step="0.01" id="edit-amount" class="mt-1 block w-full rounded-md shadow-sm" required></div>
+                
                 <div id="edit-bill-month-container" class="hidden">
                     <label for="edit-bill-month" class="block text-sm font-medium">Mês da Fatura</label>
                     <input type="month" id="edit-bill-month" class="mt-1 block w-full rounded-md shadow-sm">
@@ -467,6 +468,7 @@
         let savings = [];
         let budgets = { "default": {} };
         let savingsGoals = [];
+        let lastSaveTime = null;
         
         // --- GRÁFICOS (instâncias) ---
         let monthlyCategoryChart, costTypeChart, savingsByTypeChart, monthlyComparisonChart, paymentCommitmentChart, billByBankChart;
@@ -508,7 +510,8 @@
             const saveDataButton = document.getElementById('save-data-button');
             saveDataButton.disabled = true;
             saveDataButton.textContent = 'Salvando...';
-            const allData = { expenses, futureEntries, monthlyIncomes, savings, budgets, savingsGoals, lastUpdated: new Date().toISOString() };
+            const saveTime = new Date().toISOString();
+            const allData = { expenses, futureEntries, monthlyIncomes, savings, budgets, savingsGoals, lastUpdated: saveTime };
             const dataBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
             try {
                 const formData = new FormData();
@@ -533,7 +536,8 @@
                 const result = await response.json();
                 driveFileId = result.id; 
                 saveDataButton.textContent = 'Salvo!';
-                document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(allData.lastUpdated)}`;
+                lastSaveTime = saveTime;
+                document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(lastSaveTime)}`;
             } catch (err) {
                 console.error("Erro ao salvar no Drive", err);
                 saveDataButton.textContent = 'Erro ao Salvar';
@@ -563,8 +567,9 @@
                     savings = data.savings || [];
                     budgets = data.budgets || { "default": {} };
                     savingsGoals = data.savingsGoals || [];
+                    lastSaveTime = data.lastUpdated || null;
                     authStatus.textContent = 'Dados carregados!';
-                    document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(data.lastUpdated)}`;
+                    document.getElementById('last-save-status').textContent = `Salvo: ${formatTimestamp(lastSaveTime)}`;
                 } else {
                     driveFileId = null; 
                     loadDefaultData();
@@ -664,7 +669,6 @@
             document.getElementById('edit-bank').value = entry.bank;
             document.getElementById('edit-amount').value = entry.amount;
 
-            // Lógica do Mês da Fatura
             const billMonthContainer = document.getElementById('edit-bill-month-container');
             const billMonthInput = document.getElementById('edit-bill-month');
             if (entry.type === 'Crédito') {
@@ -691,7 +695,7 @@
             container.innerHTML = '';
             
             if (monthKey === 'range') {
-                monthKey = 'default'; // Usa o default como template, mas não mostra valores
+                monthKey = 'default';
             }
             
             const categories = ["Alimentação", "Assinaturas", "Educação", "Empréstimos", "Lazer", "Moradia", "Outros", "Saúde", "Transporte", "Vestuário"];
@@ -725,8 +729,8 @@
                 if (amount > 0) {
                     budgetValues[category] = amount;
                     hasValues = true;
-                } else if (input.value) { // Se o valor for 0 ou inválido
-                    budgetValues[category] = 0; // Marca para apagar
+                } else if (input.value) { 
+                    budgetValues[category] = 0; 
                 }
             });
 
@@ -821,7 +825,9 @@
             if (month === 'all') {
                 data = [...expenses];
             } else {
+                // Pega gastos normais (Débito, PIX, Boleto) PELA DATA DA COMPRA
                 const nonCredit = expenses.filter(e => e.type !== 'Crédito' && e.date.startsWith(month));
+                // Pega gastos de Crédito PELO MÊS DA FATURA
                 const credit = expenses.filter(e => e.type === 'Crédito' && e.billMonth === month);
                 data = [...nonCredit, ...credit];
             }
@@ -838,15 +844,12 @@
             
             return data;
         }
-
+        
         function updateAllUI() {
             populateAllMonthFilters(); // Popula todos os seletores de mês
             
             // Atualiza Dashboards da Aba Despesas
-            syncDespesasView(); // Atualiza a tabela de despesas e os gráficos sincronizados
-            
-            // Atualiza Dashboards Individuais
-            updateSummaryCards(); // O card "Visão Geral" agora tem seu próprio filtro
+            syncDespesasView(); // Atualiza a tabela e todos os gráficos sincronizados
             
             // Atualiza a aba "Contas a Pagar"
             renderFutureEntriesTable();
@@ -876,6 +879,7 @@
             const tableShouldBeEmpty = month === 'all' && category === 'all' && payment === 'all';
 
             renderExpenseTable(tableShouldBeEmpty ? [] : filteredData);
+            updateSummaryCards(filteredData, month);
             updateCostTypeAnalysis(filteredData);
             updateMonthlyAnalysis(filteredData);
             updateBudgetProgress(filteredData, month);
@@ -932,24 +936,17 @@
             });
         }
         
-        function updateSummaryCards() {
-            const month = document.getElementById('visao-geral-month-filter').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-            
+        function updateSummaryCards(filteredData, month) {
             const relevantIncome = (month === 'all')
                 ? Object.values(monthlyIncomes).reduce((s, i) => s + i, 0)
                 : monthlyIncomes[month] || 0;
             const total = filteredData.reduce((s, e) => s + e.amount, 0);
-
             document.getElementById('total-expenses').textContent = formatCurrency(total);
             document.getElementById('income-percentage').textContent = `${(relevantIncome > 0 ? (total / relevantIncome) * 100 : 0).toFixed(1)}%`;
             document.getElementById('remaining-balance').textContent = formatCurrency(relevantIncome - total);
         }
 
-        function updateMonthlyAnalysis() {
-            const month = document.getElementById('category-month-filter').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-
+        function updateMonthlyAnalysis(filteredData) {
             const chartCanvas = document.getElementById('monthly-category-chart');
             const detailsContainer = document.getElementById('monthly-analysis-details');
             if (monthlyCategoryChart) monthlyCategoryChart.destroy();
@@ -961,7 +958,7 @@
             }
             chartCanvas.style.display = 'block';
             const categoryData = filteredData.reduce((acc, {category, amount}) => ({...acc, [category]: (acc[category] || 0) + amount}), {});
-            let detailsHtml = `<strong>Resumo de ${month === 'all' ? 'Todos os Meses' : formatMonthYear(month)}:</strong><ul class="list-disc ml-4 mt-2">`;
+            let detailsHtml = `<strong>Resumo dos Filtros:</strong><ul class="list-disc ml-4 mt-2">`;
             Object.entries(categoryData).sort(([,a],[,b]) => b-a).forEach(([cat, amt]) => detailsHtml += `<li>${cat}: <strong>${formatCurrency(amt)}</strong></li>`);
             detailsContainer.innerHTML = detailsHtml + '</ul>';
             
@@ -971,10 +968,7 @@
             });
         }
         
-        function updateCostTypeAnalysis() {
-            const month = document.getElementById('cost-type-month-filter').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-
+        function updateCostTypeAnalysis(filteredData) {
             if (costTypeChart) costTypeChart.destroy();
             const costData = filteredData.reduce((acc, {costType, amount}) => {
                 acc[costType] = (acc[costType] || 0) + amount;
@@ -987,10 +981,7 @@
             });
         }
 
-        function updateBudgetProgress() {
-            const month = document.getElementById('budget-progress-month-filter').value;
-            const filteredData = getExpensesForBudgetMonth(month, 'all', 'all');
-            
+        function updateBudgetProgress(filteredData, month) {
             const container = document.getElementById('budget-progress-container');
             if (!container) return;
             
@@ -1288,8 +1279,11 @@
                 monthlyComparisonChart.destroy();
             }
             const monthlyData = expenses.reduce((acc, exp) => {
-                const month = exp.date.substring(0, 7);
-                acc[month] = (acc[month] || 0) + exp.amount;
+                // Usa o mês da fatura para crédito, data da compra para o resto
+                const month = exp.type === 'Crédito' ? exp.billMonth : exp.date.substring(0, 7);
+                if (month) {
+                    acc[month] = (acc[month] || 0) + exp.amount;
+                }
                 return acc;
             }, {});
             const sortedMonths = Object.keys(monthlyData).sort(); // Ordem Crescente
@@ -1348,7 +1342,7 @@
                 }
             });
         }
-        
+
         function updateBillByBankChart(filteredData) {
             if (billByBankChart) billByBankChart.destroy();
             
@@ -1383,7 +1377,7 @@
                 }
             });
         }
-
+        
         // --- FUNÇÃO GEMINI API ---
         async function callGeminiAPI() {
             const geminiButton = document.getElementById('gemini-button');
@@ -1463,28 +1457,6 @@
             }
         };
         
-        // --- LÓGICA DE VISIBILIDADE DE CAMPOS ---
-        function toggleBillMonthField(formType) {
-            const prefix = formType === 'edit' ? 'edit-' : '';
-            const paymentType = document.getElementById(`${prefix}payment-type`).value;
-            const container = document.getElementById(`${prefix}bill-month-container`);
-            const input = document.getElementById(`${prefix}bill-month`);
-            
-            if (paymentType === 'Crédito') {
-                container.classList.remove('hidden');
-                input.required = true;
-                if(!input.value) { // Sugere o próximo mês
-                    const now = new Date();
-                    now.setMonth(now.getMonth() + 1);
-                    input.value = now.toISOString().substring(0, 7);
-                }
-            } else {
-                container.classList.add('hidden');
-                input.required = false;
-                input.value = '';
-            }
-        }
-
         // --- INICIALIZAÇÃO E LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
             const expenseForm = document.getElementById('expense-form');
@@ -1497,11 +1469,13 @@
             const geminiButton = document.getElementById('gemini-button');
             const authButton = document.getElementById('google-auth-button');
             const saveDataButton = document.getElementById('save-data-button');
+            
             const tabDespesas = document.getElementById('tab-despesas');
             const tabContas = document.getElementById('tab-contas');
             const tabReservas = document.getElementById('tab-reservas');
             const tabOrcamentos = document.getElementById('tab-orcamentos');
             const tabMetas = document.getElementById('tab-metas');
+            
             const budgetMonthInput = document.getElementById('budget-month');
             const saveBudgetButton = document.getElementById('save-budget-button');
             const budgetModeRadios = document.querySelectorAll('input[name="budget-edit-mode"]');
@@ -1526,7 +1500,7 @@
                         case 'budget-progress-month-filter': func = updateBudgetProgress; break;
                         case 'category-month-filter': func = updateMonthlyAnalysis; break;
                     }
-                    el.addEventListener('change', func);
+                    if(func) el.addEventListener('change', func);
                 }
             });
             
@@ -1535,7 +1509,7 @@
 
             // Setup Inicial
             const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme); // Isso vai chamar updateChartTheme() e updateAllUI()
+            applyTheme(savedTheme);
             updateSigninStatus(false);
             
             authButton.addEventListener('click', () => {
@@ -1571,6 +1545,7 @@
                     });
                     tab.button.classList.add('active');
                     tab.view.classList.remove('hidden');
+                    
                     // Lógica específica ao abrir cada aba
                     if (tab.button.id === 'tab-reservas') { populateGoalsDropdown(); }
                     if (tab.button.id === 'tab-orcamentos') {
